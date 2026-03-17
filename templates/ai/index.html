@@ -1,0 +1,179 @@
+{% extends 'layout.html' %}
+{% block title %}AI 안전 도우미 - 도(道)서관{% endblock %}
+
+{% block head %}
+<style>
+    #chat-box {
+        height: 480px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .msg-user {
+        align-self: flex-end;
+        background: var(--primary-teal, #20828A);
+        color: #fff;
+        border-radius: 18px 18px 4px 18px;
+        padding: 10px 16px;
+        max-width: 75%;
+        line-height: 1.6;
+    }
+    .msg-ai {
+        align-self: flex-start;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 18px 18px 18px 4px;
+        padding: 10px 16px;
+        max-width: 80%;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+    .msg-ai .ai-label {
+        font-size: 0.75rem;
+        color: var(--primary-teal, #20828A);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    .typing-indicator span {
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #aaa;
+        margin: 0 2px;
+        animation: bounce 1.2s infinite;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="mb-4">
+            <h4 class="fw-bold mb-1">🤖 AI 안전 도우미</h4>
+            <p class="text-muted small mb-0">도로 안전, 교통 법규, 안전 운전 팁에 대해 무엇이든 물어보세요.</p>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <!-- 채팅창 -->
+                <div id="chat-box">
+                    <div class="msg-ai">
+                        <div class="ai-label">🛣️ 도(道)서관 AI</div>
+                        안녕하세요! 저는 도로 안전 전문 AI 어시스턴트입니다.<br>
+                        교통 법규, 위험 구간 분석, 안전 운전 팁 등 도로와 관련된 무엇이든 질문해주세요. 😊
+                    </div>
+                </div>
+
+                <!-- 입력창 -->
+                <div class="d-flex gap-2 mt-3">
+                    <input type="text" id="question-input" class="form-control"
+                           placeholder="질문을 입력하세요 (Enter로 전송)" autocomplete="off">
+                    <button id="send-btn" class="btn btn-teal fw-semibold px-4">전송</button>
+                </div>
+
+                <!-- 예시 질문 -->
+                <div class="mt-3 d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-secondary btn-sm example-q">빗길 안전 운전 방법은?</button>
+                    <button class="btn btn-outline-secondary btn-sm example-q">고속도로 졸음운전 대처법</button>
+                    <button class="btn btn-outline-secondary btn-sm example-q">어린이 보호구역 규정 알려줘</button>
+                    <button class="btn btn-outline-secondary btn-sm example-q">음주운전 단속 기준은?</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chatBox = document.getElementById('chat-box');
+const input = document.getElementById('question-input');
+const sendBtn = document.getElementById('send-btn');
+let history = [];
+
+function scrollBottom() {
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function appendMsg(role, text) {
+    const div = document.createElement('div');
+    if (role === 'user') {
+        div.className = 'msg-user';
+        div.textContent = text;
+    } else {
+        div.className = 'msg-ai';
+        div.innerHTML = '<div class="ai-label">🛣️ 도(道)서관 AI</div>' + text;
+    }
+    chatBox.appendChild(div);
+    scrollBottom();
+    return div;
+}
+
+function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg-ai typing-indicator';
+    div.id = 'typing';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    chatBox.appendChild(div);
+    scrollBottom();
+}
+
+function removeTyping() {
+    const el = document.getElementById('typing');
+    if (el) el.remove();
+}
+
+async function sendQuestion() {
+    const q = input.value.trim();
+    if (!q) return;
+
+    appendMsg('user', q);
+    history.push({ role: 'user', content: q });
+    input.value = '';
+    sendBtn.disabled = true;
+    showTyping();
+
+    try {
+        const res = await fetch('/ai/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: q, history: history.slice(0, -1) })
+        });
+        const data = await res.json();
+        removeTyping();
+
+        if (data.answer) {
+            appendMsg('ai', data.answer);
+            history.push({ role: 'assistant', content: data.answer });
+            // 대화 내역 최대 20개 유지
+            if (history.length > 20) history = history.slice(-20);
+        } else {
+            appendMsg('ai', '⚠️ ' + (data.error || '오류가 발생했습니다.'));
+        }
+    } catch (e) {
+        removeTyping();
+        appendMsg('ai', '⚠️ 네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        sendBtn.disabled = false;
+        input.focus();
+    }
+}
+
+sendBtn.addEventListener('click', sendQuestion);
+input.addEventListener('keydown', e => { if (e.key === 'Enter') sendQuestion(); });
+
+document.querySelectorAll('.example-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+        input.value = btn.textContent;
+        sendQuestion();
+    });
+});
+</script>
+{% endblock %}

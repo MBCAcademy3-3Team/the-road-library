@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% block title %}{{ post.title }} - 도(道)서관{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-5">
+                <h4 class="fw-bold mb-2">{{ post.title }}</h4>
+                <div class="d-flex gap-3 text-muted small mb-4">
+                    <span>✍️ {{ post.writer_name }}</span>
+                    <span>👁 {{ post.view_count or 0 }}</span>
+                    {% if post.created_at %}
+                        <span>📅 {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    {% endif %}
+                </div>
+                <hr>
+                <div class="py-3" style="white-space: pre-wrap; line-height: 1.8;">{{ post.content }}</div>
+
+                {% if files %}
+                <hr>
+                <h6 class="fw-bold mb-3">📎 첨부 파일 ({{ files|length }}개)</h6>
+                <div class="list-group list-group-flush">
+                    {% for file in files %}
+                    <div class="list-group-item px-0 d-flex align-items-center gap-3">
+                        {% if file.thumbnail_url and file.thumbnail_url != file.original_url %}
+                            <img src="{{ file.thumbnail_url }}" alt="썸네일" class="rounded" style="width:50px; height:50px; object-fit:cover;">
+                        {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:50px; height:50px;">
+                                📄
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">{{ file.origin_name }}</div>
+                        </div>
+                        <a href="{{ file.download_url or file.original_url }}" target="_blank"
+                           class="btn btn-sm btn-outline-secondary">다운로드</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <a href="/filesboard" class="btn btn-outline-secondary px-4">목록으로</a>
+            {% if session.get('user_id') and (session.get('user_id') == post.member_id or session.get('user_role') in ('admin', 'manager')) %}
+            <div class="d-flex gap-2">
+                <a href="/filesboard/{{ post.id }}/edit" class="btn btn-outline-primary px-4">수정</a>
+                <form method="POST" action="/filesboard/{{ post.id }}/delete" onsubmit="return confirm('삭제하시겠습니까?')">
+                    <button type="submit" class="btn btn-outline-danger px-4">삭제</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

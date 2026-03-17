@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+{% block title %}자료실 - 도(道)서관{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">파일 자료실</h4>
+        <p class="text-muted small mb-0">교통법규, 블랙박스 분석 자료 등 안전 운전을 위한 자료를 공유합니다.</p>
+    </div>
+    {% if session.get('user_id') %}
+        <a href="/filesboard/write" class="btn btn-teal fw-semibold px-4">자료 등록</a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4" style="width:60px;">번호</th>
+                    <th>제목</th>
+                    <th style="width:80px;">파일</th>
+                    <th style="width:120px;">작성자</th>
+                    <th style="width:130px;">작성일</th>
+                    <th style="width:80px;">조회</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if posts %}
+                    {% for post in posts %}
+                    <tr>
+                        <td class="ps-4 text-muted">{{ post.id }}</td>
+                        <td>
+                            <a href="/filesboard/{{ post.id }}" class="text-decoration-none text-dark fw-semibold">
+                                {{ post.title }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            {% if post.file_count and post.file_count > 0 %}
+                                <span class="badge rounded-pill" style="background-color: var(--primary-teal);">
+                                    📎 {{ post.file_count }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ post.writer_name }}</td>
+                        <td class="text-muted">
+                            {% if post.created_at %}
+                                {{ post.created_at.strftime('%Y-%m-%d') }}
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ post.view_count or 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">등록된 자료가 없습니다.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

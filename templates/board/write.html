@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block title %}{{ '게시글 수정' if edit else '글쓰기' }} - 도(道)서관{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h4 class="fw-bold mb-4">{{ '게시글 수정' if edit else '새 글 작성' }}</h4>
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">제목</label>
+                        <input type="text" name="title" class="form-control"
+                               value="{{ board.title if board else '' }}"
+                               placeholder="제목을 입력하세요" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">내용</label>
+                        <textarea name="content" class="form-control" rows="12"
+                                  placeholder="내용을 입력하세요" required>{{ board.content if board else '' }}</textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-teal fw-bold px-4">
+                            {{ '수정 완료' if edit else '등록' }}
+                        </button>
+                        <a href="{{ '/board/' ~ board.id if edit else '/board' }}" class="btn btn-outline-secondary px-4">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
