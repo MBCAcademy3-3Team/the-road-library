@@ -3,75 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>종합 관리 시스템</title>
+    <title>{% block title %}도(道)서관 - The Road Library{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <style>
-        body { padding-top: 70px; } /* 네비바에 가려지지 않게 설정 */
+        :root {
+            --primary-teal: #20828A;
+            --dark-charcoal: #212529;
+        }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            color: var(--dark-charcoal);
+            background-color: #fcfcfc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex: 1;
+            display: flex; /* 중앙 정렬을 돕기 위한 설정 */
+            flex-direction: column;
+        }
+
+        /* --- Navbar 스타일 --- */
+        .navbar { background-color: #fff; border-bottom: 5px solid var(--primary-teal); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-link { font-weight: 600; color: var(--dark-charcoal); margin-right: 15px; font-size: 1.5rem; }
+        .nav-link:hover { color: var(--primary-teal); }
+
+        /* --- 로고 옆 '도(道)서관' 글자 크기만 수정 --- */
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand span {
+            font-size: 1.5rem !important; /* 메뉴(1.5rem)보다 확실히 큰 사이즈 */
+            font-weight: 800 !important;
+            margin-left: 5px;
+        }
+
+
+        /* --- Footer 스타일 (크기 축소) --- */
+        .footer {
+            background-color: var(--dark-charcoal);
+            color: #ffffff;
+            padding: 20px 0; /* 패딩을 40px -> 20px로 줄여 높이 축소 */
+            margin-top: auto; /* 내용이 적어도 항상 바닥에 위치 */
+        }
+        .footer-logo { font-weight: 800; font-size: 1.8rem; color: var(--primary-teal); margin-bottom: 5px !important; }
+        .footer-text { opacity: 0.6; font-size: 0.8rem; line-height: 1.4; }
+        .footer-text p { margin-bottom: 2px; }
+
+        /* 드롭다운 자동 호버 설정 */
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+        }
+
+        {% block extra_style %}{% endblock %}
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">MBC 시스템</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/board">자유게시판</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/filesboard">자료실(파일게시판)</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="scoreDropdown" role="button" data-bs-toggle="dropdown">
-                            성적관리
-                        </a>
-                        <ul class="dropdown-menu shadow">
-                            {# 1. 유저 권한으로 로그인 사용자가 볼 수 있는 메뉴 #}
-                            {% if session.get('user_role') == 'user' %}
-                                <li><a class="dropdown-item" href="/score/my">내 성적 조회</a></li>
-                            {% endif %}
 
-                            {# 2. 관리자/매니저만 볼 수 있는 메뉴 #}
-                            {% if session.get('user_role') in ('admin', 'manager') %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">관리자 메뉴</h6></li>
-                                <li><a class="dropdown-item" href="/score/members">학생 성적 입력 (학생선택)</a></li>
-                                <li><a class="dropdown-item" href="/score/list">전체 성적 현황 (JOIN)</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    {% if session.get('user_id') %}
-                        <li class="nav-item">
-                            <span class="nav-link text-white"><b>{{ session['user_name'] }}|{{ session['user_role']}}</b>님</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/mypage">마이페이지</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/logout">로그아웃</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login">로그인</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/join">회원가입</a>
-                        </li>
-                    {% endif %}
-                </ul>
+<nav class="navbar navbar-expand-lg sticky-top py-3">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="/static/the_road_library_logo.png" alt="로고" width="65" height="65" class="me-2">
+            <span class="fw-bold">도(道)서관</span>
+        </a>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav gap-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#">소개</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/about#background">프로젝트 배경</a></li>
+                        <li><a class="dropdown-item" href="/about#logo">로고 소개</a></li>
+                        <li><a class="dropdown-item" href="/about#process">개발 과정</a></li>
+                        <li><a class="dropdown-item" href="/about#features">홈페이지 소개</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#">도(道)와주세요</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">도(道)란도란</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">도움말</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">마이페이지</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="footer-logo mb-3 text-uppercase">The Road Library</div>
+            <p class="mb-1 fw-bold" style="font-size: 0.9rem;">도로 위의 숨은 위험을 읽는 AI 솔루션, 도(道)서관</p>
+            <div class="footer-text">
+                <p>© 2026 Road Library Project. All rights reserved.</p>
+                <p>Tech Stack: YOLOv11, Python, MySQL, Bootstrap</p>
             </div>
         </div>
-    </nav>
-
-    <div class="container">
-        <!-- 본문 영역으로 다른 파일이 이 레이아웃을 겹쳐 보이게 처리하는 용도-->
-        {% block content %}{% endblock %}
-    </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
