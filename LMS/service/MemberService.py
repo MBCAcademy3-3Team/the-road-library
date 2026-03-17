@@ -1,36 +1,17 @@
-import os
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash, jsonify, Flask
-from functools import wraps
+
 from datetime import date
-from LMS.common import log_system, upload_file
+from LMS.common import log_system, upload_file, login_required
 from LMS.common.db import fetch_query, execute_query
 from LMS.common.session import Session
 from LMS.domain import Board
 
-app = Flask(__name__)
-
-FLASK_APP_KEY = os.getenv('FLASK_APP_KEY')
-app.secret_key = FLASK_APP_KEY
-
 # Blueprint 설정
 member_bp = Blueprint('member', __name__)
-
-def login_required(f):
-    @wraps(f)
-
-    def decorated_function(*args, **kwargs):
-
-        if 'user_id' not in session:
-            flash('로그인이 필요한 서비스입니다.')
-            return redirect(url_for('member.login')) # bp이름.함수명
-        return f(*args, **kwargs)
-
-    return decorated_function
 
 # 로그인
 @member_bp.route('/login', methods=['GET', 'POST'])
 def login():
-
     if request.method == 'GET':
         return render_template('login.html')
 
@@ -50,7 +31,6 @@ def login():
         session['user_profile'] = user['profile_img']
         log_system('ACCESS', 'INFO', 'LOGIN_SUCCESS', f'로그인 UID : {uid}')
         return redirect(url_for('index'))
-
     else:
         log_system('SECURITY', 'WARNING', 'LOGIN_FAIL', f'로그인 시도한 UID: {uid}')
         return "<script>alert('로그인 실패');history.back();</script>"
@@ -60,34 +40,27 @@ def login():
 def logout():
     session.clear()
     flash('로그아웃 되었습니다.')
-    return redirect(url_for('login'))
+    return redirect(url_for('member.login'))
 
 # 회원가입
 @member_bp.route('/signup', methods=['GET', 'POST'])
 def join():
-
     if request.method == 'GET':
-        return render_template('join.html')
-
-    if request.method == 'GET':
-        # 현재 연도를 구해서 템플릿으로 전달합니다.
         today_year = date.today().year
         return render_template('join.html', year_now=today_year)
 
     uid = request.form.get('uid')
     password = request.form.get('password')
     name = request.form.get('name')
-    #회원가입 시 생년월일 추가(만 14세 이상만 가입 가능)
+    # 회원가입 시 생년월일 추가(만 14세 이상만 가입 가능)
     # [추가] 따로 입력받은 년, 월, 일을 가져옴
     b_year = request.form.get('birth_year')
     b_month = request.form.get('birth_month')
     b_day = request.form.get('birth_day')
 
     try:
-
         # [추가] 만 나이 계산 및 14세 체크
         if b_year and b_month and b_day:
-
             birth_date = date(int(b_year), int(b_month), int(b_day))
             today = date.today()
             age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
@@ -97,7 +70,6 @@ def join():
 
             # DB에 저장할 날짜 형식 (YYYY-MM-DD)
             birthdate_str = birth_date.strftime('%Y-%m-%d')
-
         else:
             return '<script>alert("생년월일을 모두 입력해주세요.");history.back();</script>'
 
@@ -122,7 +94,6 @@ def join():
 @member_bp.route('/member/modify', methods=['GET', 'POST'])
 @login_required
 def member_edit():
-
     if request.method == 'GET':
         user = fetch_query("SELECT * FROM members WHERE id = %s", (session['user_id'],), one=True)
         return render_template('member_edit.html', user=user)
@@ -132,7 +103,6 @@ def member_edit():
     new_pw = request.form.get('password')
 
     try:
-
         if new_pw:
             hashed_pw = new_pw
             # [개선] UPDATE 실행
@@ -157,7 +127,6 @@ def member_edit():
 # 마이페이지
 @member_bp.route('/mypage')
 def mypage():
-
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
@@ -186,26 +155,19 @@ def mypage():
 
 # 마이페이지 - 프로필 사진
 @member_bp.route('/profile/upload', methods=['POST'])
+@login_required
 def profile_upload():
-
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    print('request.files :', request.files)
-
     if 'profile_img' not in request.files:
         return "<script>alert('파일이 없습니다.');history.back();</script>"
 
     file = request.files['profile_img']
-    print('file :', file)
 
     if file.filename == '':
         return "<script>alert('선택된 파일이 없습니다.');history.back();</script>"
 
     if file:
-
         try:
             file_url = upload_file(file, folder="profiles")
-
             if file_url:
                 origin_name = file.filename
                 save_name = file_url
@@ -216,7 +178,6 @@ def profile_upload():
                 execute_query(sql, (file_path, session['user_id']))
 
                 return "<script>alert('프로필 사진이 변경되었습니다.');location.href='/mypage';</script>"
-
         except Exception as e:
             # 어떤 에러인지 정확히 알기 위해 f-string 사용
             return f"<script>alert('오류 발생: {str(e)}');history.back();</script>"
