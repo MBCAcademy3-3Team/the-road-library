@@ -1,0 +1,26 @@
+<nav class="navbar navbar-expand-lg sticky-top py-3">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="{{ url_for('static', filename='logo/the_road_library_logo.png') }}" alt="로고" width="60" height="60" class="me-2">
+            <span class="fw-bold">도(道)서관</span>
+        </a>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav gap-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#">소개</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/introduce/background">프로젝트 배경</a></li>
+                        <li><a class="dropdown-item" href="/introduce/logo">로고 소개</a></li>
+                        <li><a class="dropdown-item" href="/introduce/process">개발 과정</a></li>
+                        <li><a class="dropdown-item" href="/introduce/features">홈페이지 소개</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#">도(道)와주세요</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">도(道)란도란</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">도움말</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">마이페이지</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin">관리자</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

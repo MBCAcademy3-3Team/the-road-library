@@ -5,6 +5,7 @@ from LMS.common.log import log_system
 from LMS.common.auth import login_required
 
 __all__ = [
+    'Session',
     'get_db',
     'execute_query',
     'fetch_query',

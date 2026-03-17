@@ -1,13 +1,7 @@
-{% extends 'layout.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <style>
-    /* Communa 브랜드 컬러 정의 */
-    :root {
-        --communa-primary: #20828A;
-        --communa-hover: #186b72;
-    }
-
     /* 프로필 이미지 영역 */
     .profile-container {
         position: relative;
@@ -84,16 +78,12 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-9">
-
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-
                 <div class="bg-light" style="height: 100px; background: linear-gradient(135deg, #20828A 0%, #6cdbeb 100%); opacity: 0.9;"></div>
-
                 <div class="card-body p-4 p-md-5">
                     <div class="row">
                         <div class="col-md-4 text-center" style="margin-top: -80px;">
-
-                            <form id="profileForm" action="/profile/upload" method="POST" enctype="multipart/form-data">
+                            <form id="profileForm" action="/file/profile/upload" method="POST" enctype="multipart/form-data">
                                 <div class="profile-container">
                                     {% if user.profile_img %}
                                         <img src="{{ user.profile_img }}"
@@ -115,22 +105,18 @@
                                     <input type="file" name="profile_img" id="profile_img_input" accept="image/*" onchange="submitForm()" style="display: none;">
                                 </div>
                             </form>
-
                             <h3 class="fw-bold text-dark mt-2">{{ user.name }}</h3>
                             <span class="badge rounded-pill px-3 py-2 fw-normal mt-1"
                                   style="background-color: rgba(32, 130, 138, 0.1); color: #20828A; border: 1px solid #20828A;">
                                 {{ user.role.upper() }} 계정
                             </span>
-
                             <div class="d-grid mt-4">
-                                <a href="/member/edit" class="btn btn-outline-secondary rounded-pill btn-sm">
+                                <a href="/mypage/edit" class="btn btn-outline-secondary rounded-pill btn-sm">
                                     <i class="bi bi-gear-fill me-1"></i> 회원 정보 수정
                                 </a>
                             </div>
                         </div>
-
                         <div class="col-md-8 ps-md-5 mt-4 mt-md-0">
-
                             <h5 class="fw-bold mb-3" style="color: #20828A;">
                                 <i class="bi bi-person-lines-fill me-2"></i>기본 정보
                             </h5>
@@ -156,7 +142,7 @@
                                                 <i class="bi bi-pencil-square fs-3"></i>
                                             </div>
                                             <small class="text-muted d-block mb-1">작성 게시글</small>
-                                            <a href="/board/my" class="h4 fw-bold text-dark text-decoration-none stretched-link">
+                                            <a href="/mypage/my" class="h4 fw-bold text-dark text-decoration-none stretched-link">
                                                 {{ board_count }}<span class="fs-6 fw-normal text-muted ms-1">건</span>
                                             </a>
                                         </div>
@@ -180,7 +166,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="card-footer bg-light border-0 text-center py-3">
                     <button class="btn btn-link text-muted text-decoration-none btn-sm" onclick="location.href='/'">
                         <i class="bi bi-arrow-left me-1"></i> 홈으로 돌아가기

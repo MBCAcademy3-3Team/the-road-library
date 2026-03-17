@@ -1,7 +1,7 @@
 from math import ceil
 
 from flask import Blueprint, session, request, render_template, url_for, redirect, jsonify
-from LMS.common import Session
+from LMS.common import Session, login_required
 from LMS.common.db import fetch_query, execute_query
 from LMS.domain import Board
 from LMS.common.storage import upload_file
@@ -10,17 +10,13 @@ board_bp = Blueprint('board_bp', __name__)
 
 # 게시물 작성
 @board_bp.route('/write', methods=['GET', 'POST'])
+@login_required
 def board_write():
     # 1. 사용자가 '글쓰기' 버튼을 눌러서 들어왔을 때 (화면 보여주기)
     if request.method == 'GET':
-        # 로그인 체크
-        if 'user_id' not in session:
-            # alert 후 이동은 기존 방식 유지 혹은 redirect 사용
-            return '<script>alert("로그인 후 이용 가능합니다."); location.href="/login";</script>'
-
         # 관리자 여부를 템플릿에 전달
         is_admin = (session.get('user_role') == "admin")
-        return render_template('board_write.html', is_admin=is_admin)
+        return render_template('board/write.html', is_admin=is_admin)
 
     # 2. 사용자가 '등록하기' 버튼을 눌러서 데이터를 보냈을 때(DB 저장)
     elif request.method == 'POST':
@@ -54,7 +50,7 @@ def board_write():
                 cursor.execute(sql, (member_id, title, content, is_pinned))
                 conn.commit()
 
-            return redirect(url_for('board_list'))  # 저장 후 목록으로 이동
+            return redirect(url_for('board.board_list'))  # 저장 후 목록으로 이동
 
         except Exception as e:
             print(f"글쓰기 에러: {e}")
@@ -119,7 +115,7 @@ def board_list():
         'next_num': page + 1
     }
 
-    return render_template('board_list.html', boards=boards, pagination=pagination)
+    return render_template('board/list.html', boards=boards, pagination=pagination)
 
 # 게시물 상세보기
 @board_bp.route('/view/<int:board_id>')
@@ -193,7 +189,7 @@ def board_view(board_id):
     board.report_count = row['report_count']  # 혹시 화면에 신고수 띄울까봐 추가
     board.writer_profile = row['writer_profile']
 
-    return render_template('board_view.html',
+    return render_template('board/view.html',
                            board=board,
                            user_liked=user_liked,
                            user_disliked=user_disliked,
