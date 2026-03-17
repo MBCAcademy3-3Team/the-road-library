@@ -81,6 +81,7 @@
     .feature-card:hover::before { transform: scaleX(1); }
     .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 50px rgba(32, 130, 138, 0.2); }
 
+<<<<<<< Updated upstream
     .icon-box {
         width: 80px;
         height: 80px;
@@ -98,6 +99,49 @@
     .card-text { font-weight: 500; line-height: 1.6; }
 </style>
 {% endblock %}
+=======
+        /* 등급 뱃지 예시 */
+        .grade-badge {
+            background-color: var(--dark-charcoal);
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg sticky-top py-3"> <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#" style="flex: 1;">
+                <img src="/static/the_road_library_logo.png" alt="로고" width="50" height="50" class="me-2">
+                <span class="fw-bold">도(道)서관</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav" style="flex: 2;">
+                <ul class="navbar-nav gap-4">
+                    <li class="nav-item"><a class="nav-link fw-bold" href="#">소개</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold" href="#">도(道)와주세요</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold" href="#">도(道)란도란</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold" href="#">도움말</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold" href="#">마이페이지</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold" href="/admin">관리자</a></li>
+                </ul>
+            </div>
+
+            <div class="d-none d-lg-flex justify-content-end" style="flex: 1;">
+                </div>
+        </div>
+    </nav>
+>>>>>>> Stashed changes
 
 {% block content %}
     <header class="hero-section">

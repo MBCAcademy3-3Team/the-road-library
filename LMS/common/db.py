@@ -27,7 +27,7 @@ class DBConfig:
 
     @property
     def url(self) -> str:
-        return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
+        return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}?useSsl=true"
 
     def get_engine_args(self) -> Dict[str, Any]:
         args: Dict[str, Any] = {"charset": "utf8mb4"}

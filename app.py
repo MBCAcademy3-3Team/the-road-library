@@ -5,12 +5,13 @@ load_dotenv()
 import os
 
 # 라이브러리
-from flask import Flask, render_template, g
-from flask import Flask
 from flask_caching import Cache
+from flask import Flask, render_template, Blueprint, g
 
 # 서비스 모듈
 from LMS.service.MemberService import member_bp
+from LMS.service.AdminService import AdminService
+
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
@@ -38,7 +39,21 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
+
 # 서버 실행부
+# 블루프린트 app.py 안에서 바로 정의
+admin_bp = Blueprint('admin', __name__)
+
+@admin_bp.route('/')
+def dashboard():
+    members = AdminService.get_members()
+    new_today = AdminService.get_today_new_members(members)
+    boards = AdminService.get_boards()
+    return render_template('admin.html',members=members, new_today=new_today, boards=boards)
+
+app.register_blueprint(admin_bp, url_prefix='/admin')
+
+
 if __name__ == '__main__':
     app.run(
         host='0.0.0.0',

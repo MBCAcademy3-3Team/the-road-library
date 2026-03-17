@@ -1,0 +1,36 @@
+from LMS.common.session import Session  # 기존 Session 그대로 활용
+from datetime import datetime, timedelta
+
+class AdminService:
+
+    @classmethod
+    def get_members(cls):
+        conn = Session.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT * FROM members")
+                return cursor.fetchall()
+        except:
+            print("AdminService.get_members() 오류발생....")
+            return []
+        finally:
+            conn.close()
+
+    @classmethod
+    def get_today_new_members(cls, members):
+        # 이미 넘어온 members 객체 재활용 → 쿼리 추가 없음
+        since = datetime.now() - timedelta(hours=24)
+        return len([m for m in members if m['created_at'] >= since])
+
+    @classmethod
+    def get_boards(cls):
+        conn = Session.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT * FROM boards")
+                return cursor.fetchall()
+        except:
+            print("AdminService.get_boards() 오류발생....")
+            return []
+        finally:
+            conn.close()
