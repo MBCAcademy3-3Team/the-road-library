@@ -54,7 +54,6 @@ app.register_blueprint(board_bp, url_prefix='/board')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 # FIXME end
 
-
 if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
