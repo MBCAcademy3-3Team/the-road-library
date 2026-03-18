@@ -2,10 +2,6 @@
 
 {% block content %}
 <style>
-    :root {
-        --library-teal: #20828A;
-    }
-
     /* 레이아웃 고정 및 가로 스크롤 방지 */
     .table-responsive { overflow-x: hidden !important; }
     .table { table-layout: fixed !important; /* 컬럼 너비 강제 고정 */ width: 100% !important; }
@@ -50,7 +46,7 @@
 
     .search-btn {
         border: none;
-        background: var(--library-teal);
+        background: var(--primary-teal);
         color: white;
         border-radius: 8px;
         padding: 6px 14px;
@@ -78,11 +74,11 @@
         flex: 1;
     }
 
-    .table tr:hover .title-link { color: var(--library-teal); }
+    .table tr:hover .title-link { color: var(--primary-teal); }
 
     /* 페이지네이션 색상 (파란색 제거) */
     .page-link { color: #495057 !important; background-color: #fff !important; border: 1px solid #dee2e6 !important; }
-    .page-item.active .page-link { background-color: var(--library-teal) !important; border-color: var(--library-teal) !important; color: white !important; }
+    .page-item.active .page-link { background-color: var(--primary-teal) !important; border-color: var(--primary-teal) !important; color: white !important; }
 </style>
 
 <div class="container py-5">
@@ -91,7 +87,7 @@
             <h2 class="fw-bold mb-1">도(道)란도란</h2>
             <p class="text-muted mb-0">도로 위 안전 정보를 공유하고 베테랑들과 소통하세요.</p>
         </div>
-        <a href="{{ url_for('board.board_write') }}" class="btn text-white px-4 py-2 rounded-pill shadow-sm" style="background-color: var(--library-teal);">
+        <a href="{{ url_for('board.board_write') }}" class="btn text-white px-4 py-2 rounded-pill shadow-sm" style="background-color: var(--primary-teal);">
             <i class="bi bi-pencil-square me-1"></i> 새 글 쓰기
         </a>
     </div>
@@ -165,7 +161,7 @@
                         <td class="small">{{ board.writer_name }}</td>
                         <td class="text-muted small">{{ board.created_at.strftime('%Y-%m-%d') if board.created_at }}</td>
                         <td style="color: #e03131; font-size: 0.9rem;">❤️ {{ board.like_count or 0 }}</td>
-                        <td style="color: var(--library-teal); font-size: 0.9rem;">
+                        <td style="color: var(--primary-teal); font-size: 0.9rem;">
                             <i class="bi bi-chat-left-text"></i>💬 {{ board.comment_count or 0 }}
                         </td>
                     </tr>

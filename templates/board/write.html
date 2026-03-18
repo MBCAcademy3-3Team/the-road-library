@@ -10,25 +10,84 @@
     :root {
         --primary-teal: #20828A;
         --light-gray: #f8f9fa;
+        --notice-orange: #fd8a69; /* 공지사항 포인트 컬러 */
     }
 
-    /* 도서관 스타일 커스텀 */
+    /* 1. 제목 입력창 커스텀 (Focus 효과 포함) */
+    .custom-form-control {
+        font-size: 1.1rem !important; /* 제목 글씨 크기 */
+        border-radius: 12px !important;
+    }
+    .custom-form-control:focus {
+        border-color: var(--primary-teal) !important;
+        box-shadow: 0 0 0 0.2rem rgba(32, 130, 138, 0.1) !important;
+        background-color: #fff !important;
+    }
+
+    /* 2. 서머노트 에디터 외관 (제목창과 통일) */
     .note-editor.note-frame {
-        border: 1px solid #dee2e6;
-        border-radius: 12px;
+        border: 2px solid #dee2e6 !important;
+        border-radius: 12px !important;
         overflow: hidden;
+        background-color: #fff !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
     }
-    .note-toolbar { background-color: var(--light-gray) !important; border-bottom: 1px solid #dee2e6 !important; }
 
-    /* 등록 버튼 비활성화 스타일 */
+    /* 에디터 포커스 시 테두리 색상 (제목창과 통일) */
+    .note-editor.note-frame.focus {
+        border-color: var(--primary-teal) !important;
+        box-shadow: 0 0 0 0.2rem rgba(32, 130, 138, 0.1) !important;
+    }
+
+    /* 3. 에디터 툴바 디자인 */
+    .note-toolbar {
+        background-color: var(--light-gray) !important;
+        border-bottom: 2px solid #dee2e6 !important;
+        padding: 8px 10px !important;
+    }
+    .note-btn {
+        border: none !important;
+        background-color: transparent !important;
+        color: #495057 !important;
+        transition: all 0.2s;
+    }
+    .note-btn:hover {
+        background-color: rgba(32, 130, 138, 0.1) !important;
+        color: var(--primary-teal) !important;
+    }
+
+    /* 4. ★ 글쓰기 영역 (제목과 글씨 크기 1.1rem으로 일치) ★ */
+    .note-editable {
+        background-color: #ffffff !important;
+        font-size: 1.1rem !important; /* 제목 입력창과 동일하게 수정 */
+        color: #212529 !important;
+        line-height: 1.6 !important;
+        padding: 25px !important; /* 여백을 조금 더 시원하게 */
+        min-height: 300px;
+    }
+
+    /* 5. 공지사항 스위치 커스텀 */
+    .custom-switch:checked {
+        background-color: var(--notice-orange) !important;
+        border-color: var(--notice-orange) !important;
+    }
+    .custom-switch:focus {
+        border-color: var(--notice-orange);
+        box-shadow: 0 0 0 0.25rem rgba(253, 138, 105, 0.25) !important;
+    }
+
+    /* 6. 기타 UI 정리 */
     .btn-primary:disabled {
         background-color: #a0c4c7 !important;
         border-color: #a0c4c7 !important;
         cursor: not-allowed;
     }
+    .note-statusbar, .note-resizebar {
+        display: none !important; /* 하단바 제거로 깔끔하게 */
+    }
 </style>
 
-<div class="container mt-5 mb-5" style="max-width: 900px;">
+<div class="container pt-4 mb-4" style="max-width: 900px;">
     {% if not session.get('user_id') %}
     <script>
         alert("로그인이 필요한 서비스입니다.");
@@ -36,40 +95,57 @@
     </script>
     {% else %}
 
-    <div class="card shadow border-0 rounded-4">
-        <div class="card-header bg-white border-bottom-0 pt-4 px-4">
-            <h4 class="fw-bold">
-                <i class="bi bi-pencil-square me-2" style="color: var(--primary-teal);"></i>게시글 작성
-            </h4>
-        </div>
+    <form action="/board/write" method="POST" id="writeForm">
+        <div class="p-4 pt-5 pb-4 rounded-4 shadow-sm" style="background-color: #b8e5e04A; border-left: 5px solid var(--primary-teal);">
 
-        <div class="card-body p-4">
-            <form action="/board/write" method="POST" id="writeForm">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold small text-muted">제목</label>
-                    <input type="text" id="postTitle" name="title" class="form-control form-control-lg border-0 bg-light"
-                           placeholder="제목을 입력하세요" required maxlength="100">
+            <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-pencil-fill fs-3 me-3" style="color: var(--primary-teal);"></i>
+                <div>
+                    <h4 class="fw-bold mb-1">새로운 이야기 기록하기</h4>
+                    <p class="text-muted small mb-0">타인을 존중하는 마음으로 따뜻한 대화를 나눠주세요.</p>
                 </div>
+            </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold small text-muted">내용</label>
-                    <textarea id="summernote" name="content" required></textarea>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label fw-bold medium text-muted mb-0 ms-1">제목</label>
+
+                    {% if session.get('user_role') == 'admin' %}
+                    <div class="form-check form-switch mb-0 d-flex align-items-center">
+                        <input class="form-check-input custom-switch mt-0" type="checkbox"
+                               name="is_pinned" id="isNotice" value="on" style="cursor: pointer;">
+                        <label class="form-check-label small fw-bold ms-2 mb-0" for="isNotice"
+                               style="cursor: pointer; user-select: none; color: #fd8a69; line-height: 1;">
+                            <i class="bi bi-pin-angle-fill"></i> 공지사항 등록
+                        </label>
+                    </div>
+                    {% endif %}
                 </div>
+                <input type="text" id="postTitle" name="title"
+                       class="form-control border-2 bg-white custom-form-control py-3"
+                       style="border-radius: 12px; border-color: #dee2e6; font-size: 1.1rem;"
+                       placeholder="제목을 입력하세요" required maxlength="100">
+            </div>
 
-                <hr class="my-4">
+            <div class="mb-4">
+                <label class="form-label fw-bold medium text-muted mb-2 ms-1">내용</label>
+                <textarea id="summernote" name="content" required></textarea>
+            </div>
 
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="/board" class="btn btn-light px-4 rounded-pill fw-bold text-secondary">취소</a>
-                    <button type="submit" id="submitBtn" class="btn btn-primary px-5 rounded-pill fw-bold border-0"
-                            style="background-color: var(--primary-teal);" disabled>
-                        <i class="bi bi-check-lg me-1"></i> 등록하기
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+            <hr class="mt-4 mb-3" style="border-top: 1px solid #dee2e6; opacity: 0.5;">
+
+            <div class="d-flex justify-content-end align-items-center gap-2 py-4">
+                <a href="/board" class="btn btn-light px-4 py-2 rounded-pill fw-bold shadow-sm"
+                   style="color: #212529; border: 1px solid #dee2e6; background-color: #fff;">
+                   취소
+                </a>
+                <button type="submit" id="submitBtn" class="btn btn-primary px-5 py-2 rounded-pill fw-bold border-0"
+                        style="background-color: var(--primary-teal);" disabled>
+                    <i class="bi bi-check-lg me-1"></i> 등록하기
+                </button>
+            </div>
+
+        </div> </form>
     {% endif %}
 </div>
 
