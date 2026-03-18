@@ -727,6 +727,7 @@
             </tbody>
         </table>
     </div>
+    <div id="member-pagination"></div>
 </div>
 
     <!-- ===== POSTS ===== -->
@@ -842,6 +843,7 @@
             </tbody>
         </table>
     </div>
+        <div id="post-pagination"></div>
 </div>
         <!-- ===== FILES ===== -->
         <div class="page" id="page-files">
@@ -1101,6 +1103,8 @@
         risk: '⚠️ AI 위험 예보',
     };
         document.getElementById('topbar-title').textContent = titles[page];
+        if (page === 'members') applyMemberPage(1);
+    if (page === 'posts')   applyPostPage(1);
     }
 
     let toastTimer;
@@ -1174,40 +1178,35 @@ function filterMembers() {
     const role   = document.getElementById('filterRole').value;
     const active = document.getElementById('filterActive').value;
 
-    const rows = document.querySelectorAll('#page-members .data-table tbody tr');
-
-    rows.forEach(row => {
-        // data 속성 없는 tr은 그냥 스킵
-        if (row.dataset.role === undefined || row.dataset.active === undefined) {
-            return;
-        }
-
+    document.querySelectorAll('#page-members .data-table tbody tr[data-role]').forEach(row => {
         const rowName   = (row.dataset.name  || '').toLowerCase();
         const rowUid    = (row.dataset.uid   || '').toLowerCase();
         const rowRole   = (row.dataset.role  || '').trim();
         const rowActive = String(row.dataset.active).trim();
 
-        const matchSearch = !search || rowName.includes(search) || rowUid.includes(search);
-        const matchRole   = !role   || rowRole   === role;
-        const matchActive = !active || rowActive === active;
+        const match = (!search || rowName.includes(search) || rowUid.includes(search))
+                   && (!role   || rowRole   === role)
+                   && (!active || rowActive === active);
 
-        row.style.display = (matchSearch && matchRole && matchActive) ? '' : 'none';
+        row.dataset.filtered = match ? 'true' : 'false';
     });
+    applyMemberPage(1);
 }
 
-    function filterPosts() {
+function filterPosts() {
     const search   = document.getElementById('postSearch').value.trim().toLowerCase();
     const category = document.getElementById('filterPostCategory').value;
     const status   = document.getElementById('filterPostStatus').value;
 
-    document.querySelectorAll('#page-posts .data-table tbody tr').forEach(row => {
-        if (!row.dataset.category) return;
-        const matchSearch   = !search   || row.dataset.title.toLowerCase().includes(search)
-                                        || row.dataset.author.toLowerCase().includes(search);
-        const matchCategory = !category || row.dataset.category === category;
-        const matchStatus   = !status   || row.dataset.status   === status;
-        row.style.display = (matchSearch && matchCategory && matchStatus) ? '' : 'none';
+    document.querySelectorAll('#page-posts .data-table tbody tr[data-category]').forEach(row => {
+        const match = (!search   || row.dataset.title.toLowerCase().includes(search)
+                                 || row.dataset.author.toLowerCase().includes(search))
+                   && (!category || row.dataset.category === category)
+                   && (!status   || row.dataset.status   === status);
+
+        row.dataset.filtered = match ? 'true' : 'false';
     });
+    applyPostPage(1);
 }
 
 function closeBoardDetail() {
@@ -1235,6 +1234,63 @@ function closeBoardDetail() {
     }
 
     document.getElementById('boardDetailModal').classList.add('open');
+}
+
+    /* ===== 페이지네이션 공통 ===== */
+const PAGE_SIZE = 10;
+let memberPage = 1;
+let postPage = 1;
+
+function paginate(rows, page) {
+    const start = (page - 1) * PAGE_SIZE;
+    return Array.from(rows).slice(start, start + PAGE_SIZE);
+}
+
+function renderPagination(containerId, totalRows, currentPage, onPageChange) {
+    const total = Math.ceil(totalRows / PAGE_SIZE);
+    const el = document.getElementById(containerId);
+    if (total <= 1) { el.innerHTML = ''; return; }
+
+    let html = '<div style="display:flex;justify-content:center;gap:6px;margin-top:16px;">';
+    for (let i = 1; i <= total; i++) {
+        html += `<button onclick="${onPageChange}(${i})"
+            style="padding:5px 12px;border-radius:6px;border:1px solid var(--border);
+                   background:${i === currentPage ? 'var(--teal)' : 'var(--white)'};
+                   color:${i === currentPage ? '#fff' : 'var(--charcoal)'};
+                   font-family:Pretendard,sans-serif;font-weight:600;cursor:pointer;">
+            ${i}</button>`;
+    }
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+/* ===== 회원 페이지네이션 ===== */
+function applyMemberPage(page) {
+    memberPage = page;
+    // data-filtered="true"인 행만 대상
+    const all = Array.from(document.querySelectorAll('#page-members .data-table tbody tr[data-role]'));
+    const filtered = all.filter(r => r.dataset.filtered !== 'false');
+
+    all.forEach(r => {
+        const idx = filtered.indexOf(r);
+        r.style.display = (idx >= (page-1)*PAGE_SIZE && idx < page*PAGE_SIZE) ? '' : 'none';
+    });
+
+    renderPagination('member-pagination', filtered.length, page, 'applyMemberPage');
+}
+
+/* ===== 게시글 페이지네이션 ===== */
+function applyPostPage(page) {
+    postPage = page;
+    const all = Array.from(document.querySelectorAll('#page-posts .data-table tbody tr[data-category]'));
+    const filtered = all.filter(r => r.dataset.filtered !== 'false');
+
+    all.forEach(r => {
+        const idx = filtered.indexOf(r);
+        r.style.display = (idx >= (page-1)*PAGE_SIZE && idx < page*PAGE_SIZE) ? '' : 'none';
+    });
+
+    renderPagination('post-pagination', filtered.length, page, 'applyPostPage');
 }
 </script>
 </body>
