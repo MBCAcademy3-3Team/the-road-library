@@ -2,14 +2,17 @@
 
 class Member:
 
-    def __init__(self, id, uid, pw, name, role="user", active=True, created_at=None):
+    def __init__(self, id, uid, pw, name, role="user", birth_day=None, nickname=None, active=True, created_at=None, profile_img=None):
         self.id = id  # DB의 PK -> AUTO_INCREMENT 자동번호 생성
         self.uid = uid  # 아이디
         self.pw = pw  # 비밀번호
         self.name = name  # 이름
         self.role = role  # 권한
+        self.birth_day = birth_day # 생년원일
+        self.nickname = nickname # 닉네임
         self.active = active  # 활성화 여부
         self.created_at = created_at
+        self.profile_img = profile_img
         # 사용법
         # member = Member("kkw","1234","김기원","user")
         # Member객체를 member변수에 넣음
@@ -28,7 +31,9 @@ class Member:
             uid=row.get('uid'), # uid : kkw
             pw=row.get('password'),  # password : 1111
             name=row.get('name'),    # name : 김기원
-            role=row.get('role'),    # role : admin
+            role=row.get('role'), # role : admin
+            nickname=row.get('nickname'),
+            profile_img=row.get('profile_img'),
             active=bool(row.get('active')), # active : 1 -> True
             created_at = row.get('created_at')
         )
