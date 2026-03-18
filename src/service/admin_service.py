@@ -1,7 +1,16 @@
-from flask import Blueprint, render_template, request, flash, session, redirect, url_for
-from LMS.common.session import Session
+from flask import (
+    Blueprint,
+    request, session, flash,
+    render_template, redirect, url_for
+)
+
 from datetime import datetime, timedelta
 
+from src.common import (
+    Session,
+    fetch_query, execute_query,
+    log_system
+)
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/')
@@ -10,7 +19,8 @@ def dashboard():
     new_members = AdminService.get_today_new_members(members)
     boards = AdminService.get_boards()
     new_boards = AdminService.get_today_new_boards(boards)
-    return render_template('admin.html',members=members, new_members=new_members, boards=boards, new_boards=new_boards)
+    return render_template('admin/admin.html',members=members, new_members=new_members, boards=boards, new_boards=new_boards)
+
 
 class AdminService:
     @classmethod
