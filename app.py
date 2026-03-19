@@ -60,6 +60,8 @@ app.register_blueprint(faq_bp, url_prefix='/faq')
 app.register_blueprint(tip_bp, url_prefix='/tip')
 # FIXME end
 
+
+
 if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
