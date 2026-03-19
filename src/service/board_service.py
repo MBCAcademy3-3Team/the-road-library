@@ -25,13 +25,14 @@ def board_write():
         content = request.form.get('content')
         member_id = session.get('user_id')
 
+
         # 1. CSS 세정 객체 생성 (경고 해결의 핵심)
         # 만약 여기서 에러가 나면 코드 맨 위에 임포트가 잘 되었는지 확인하세요!
         allowed_styles = ['color', 'background-color', 'font-size', 'text-align', 'float', 'margin', 'padding']
 
         try:
             # 최신 방식
-            my_sanitizer = CSSSanitizer(allowed_styles = allowed_styles)
+            my_sanitizer = CSSSanitizer(allowed_css_properties = allowed_styles)
         except NameError:
             # 임포트 실패 시 안전을 위해 스타일 비허용 혹은 기본값 처리
             my_sanitizer = None
@@ -292,20 +293,21 @@ def board_delete(board_id):
             execute_query(sql, (board_id, session['user_id']))
             msg = "게시글이 삭제되었습니다."
 
-        return f"<script>alert('{msg}'); location.href='/board';</script>"
+        return f"<script>alert('{msg}'); location.href='/board/list';</script>"
 
     except Exception as e:
         print(f'삭제 에러: {e}')
         return "<script>alert('처리 중 오류가 발생했습니다.'); history.back();</script>"
 
 # 좋아요 기능
-@board_bp.route('/like/<int:board_id>', methods = ['POST'])
+@board_bp.route('/view/like/<int:board_id>', methods = ['POST'])
 def board_like_toggle(board_id):
     # 1. 로그인 체크
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
     try:
+        print('board_id :', board_id)
         # 2. 게시글 존재 확인
         board = fetch_query("SELECT id FROM boards WHERE id = %s", (board_id,), one=True)
         if not board:

@@ -33,10 +33,12 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
 
+
 # Cache 설정
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
 init_app(app)
+# CSRF 보호 활성화 (이걸 해야 write.html의 csrf_token()이 작동함)
 
 # 메인 페이지 라우트
 @app.route('/')
