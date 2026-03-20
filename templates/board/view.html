@@ -133,10 +133,9 @@
             <ul class="list-unstyled mb-0">
                 {% for file in files %}
                 <li class="mb-1">
-                    <a href="{{ file.download_url }}"
+                    <a href="/board/download/{{ file.file_id }}"
                        class="text-decoration-none small"
-                       style="color: var(--primary-teal);"
-                       download="{{ file.origin_name }}">
+                       style="color: var(--primary-teal);">
                         <i class="bi bi-file-earmark-arrow-down me-1"></i>
                         {{ file.origin_name }}
                         {% if file.file_size %}
