@@ -216,11 +216,12 @@ class AdminService:
                                     b.active,
                                     b.is_pinned,
                                     m.name AS author,
+                                    m.nickname AS nickname,
                                     COUNT(r.id) AS report_count
                                 FROM boards b
                                 LEFT JOIN members m ON b.member_id = m.id
                                 LEFT JOIN reports r ON r.board_id = b.id
-                                GROUP BY b.id, b.title, b.created_at, b.visits, b.active, b.is_pinned, m.name
+                                GROUP BY b.id, b.title, b.created_at, b.visits, b.active, b.is_pinned, m.name, m.nickname
                                 ORDER BY b.created_at DESC
                             """)
                 return cursor.fetchall()

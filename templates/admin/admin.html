@@ -259,12 +259,17 @@
             letter-spacing: 0.06em;
             border-bottom: 1px solid var(--border);
         }
+        .data-table tbody tr {
+        height: 52px;
+        max-height: 52px;
+        }
         .data-table td {
             padding: 14px 20px;
             border-bottom: 1px solid var(--border);
             font-size: 0.87rem;
             font-weight: 500;
             vertical-align: middle;
+            overflow: hidden;
         }
         .data-table tr:last-child td { border-bottom: none; }
         .data-table tr:hover td { background: #f8fffe; }
@@ -495,7 +500,9 @@
 <aside class="sidebar">
     <div class="sidebar-logo">
         <a href="/" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
-        <div class="logo-mark">🛣️</div>
+        <div class="logo-mark" style="background:white;">
+            <img src="/static/logo/the_road_library_logo.png" alt="도서관 로고" style="width:40px; height:40px; object-fit:contain; border-radius:10px;">
+        </div>
         <div>
             <div class="brand-text">도(道)서관</div>
             <div class="brand-sub">ADMIN PANEL</div>
@@ -528,23 +535,25 @@
     </nav>
 
     <div class="sidebar-footer">
-        <div class="admin-profile">
-            <div class="admin-avatar">
-                {% if current_user_img %}
-                    <img src="{{ current_user_img }}" alt="프로필">
-                {% else %}
-                    {{ current_user_name[0] if current_user_name else '?' }}
-                {% endif %}
-            </div>
-            <div class="admin-info">
-                <div class="name">{{ current_user_name }}</div>
-                <div class="role">
-                    {% if current_user_role == 'admin' %}관리자
-                    {% elif current_user_role == 'manager' %}매니져
+        <a href="/mypage" style="text-decoration:none;">
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    {% if current_user_img %}
+                        <img src="{{ current_user_img }}" alt="프로필">
+                    {% else %}
+                        {{ current_user_name[0] if current_user_name else '?' }}
                     {% endif %}
                 </div>
+                <div class="admin-info">
+                    <div class="name">{{ current_user_name }}</div>
+                    <div class="role">
+                        {% if current_user_role == 'admin' %}관리자
+                        {% elif current_user_role == 'manager' %}매니져
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 </aside>
 
@@ -684,6 +693,7 @@
                     <th style="width:60px;">ID</th>
                     <th style="width:120px;">UID</th>
                     <th style="width:100px;">이름</th>
+                    <th style="width:100px;">닉네임</th>
                     <th style="width:70px;">등급</th>
                     <th style="width:100px;">가입일</th>
                     <th style="width:70px;">상태</th>
@@ -697,12 +707,15 @@
     data-uid="{{ member['uid'] }}"
     data-role="{{ member['role'] }}"
     data-active="{{ 1 if member['active'] else 0 }}">
-    <td style="color:var(--text-muted);font-size:.78rem">#{{ member['id'] }}</td>
+    <td style="color:var(--text-muted);font-size:.78rem">{{ member['id'] }}</td>
     <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
         {{ member['uid'] }}
     </td>
     <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
         <strong>{{ member['name'] }}</strong>
+    </td>
+    <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+        <strong>{{ member['nickname'] if member['nickname'] else "익명"}}</strong>
     </td>
     <td>
         {% if member['role'] == 'admin' %}
@@ -776,8 +789,8 @@
                     <th style="width:280px;">제목</th>
                     <th style="width:80px;">작성자</th>
                     <th style="width:90px;">작성일</th>
-                    <th style="width:60px;">조회수</th>
-                    <th style="width:60px;">신고수</th>
+                    <th style="width:70px;">조회수</th>
+                    <th style="width:70px;">신고수</th>
                     <th style="width:70px;">상태</th>
                     <th style="width:220px;min-width:220px;">관리</th>
                 </tr>
@@ -790,7 +803,7 @@
                 data-status="{{ status }}"
                 data-title="{{ board['title'] }}"
                 data-author="{{ board['author'] or '' }}">
-                <td style="color:var(--text-muted);font-size:.8rem">#{{ board['id'] }}</td>
+                <td style="color:var(--text-muted);font-size:.8rem">{{ board['id'] }}</td>
                 <td>
                     {% if board['is_pinned'] %}
                         <span class="badge badge-notice">공지</span>
@@ -798,10 +811,12 @@
                         <span class="badge badge-review">일반</span>
                     {% endif %}
                 </td>
-                <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:280px;">
                 <strong>{{ board['title'] }}</strong>
                 </td>
-                <td>{{ board['author'] or '탈퇴회원' }}</td>
+                <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80px;">
+                {{ board['author'] or board['nickname'] or '(정보없음)' }}
+                </td>
                 <td style="color:var(--text-muted)">{{ board['created_at'].strftime('%Y.%m.%d') }}</td>
                 <td style="color:var(--text-muted)">{{ board['visits'] }}</td>
                 <td>
