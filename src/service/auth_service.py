@@ -26,20 +26,28 @@ def login():
     # 1. DB에서 유저 정보를 먼저 가져옵니다.
     user = fetch_query("SELECT * FROM members WHERE uid = %s", (uid,), one=True)
 
-    # 2. [회원 탈퇴 및 존재 여부 체크]
-    # user가 None이면 DB에 아이디가 없는 것(탈퇴 포함)입니다.
+    # 2. 유저 존재 여부 체크
     if user is None:
         log_system('SECURITY', 'WARNING', 'LOGIN_FAIL', f'존재하지 않는 UID 시도: {uid}')
         return """
             <script>
-                alert("존재하지 않거나 탈퇴한 계정입니다.");
+                alert("존재하지 않는 아이디입니다.");
                 location.href = "/auth/login";
             </script>
             """
 
-    # 3. 비밀번호 확인
+    # DB에서 active 컬럼 값이 0이면 탈퇴한 계정으로 간주합니다.
+    if user['active'] == 0:
+        log_system('SECURITY', 'WARNING', 'LOGIN_FAIL', f'탈퇴한 계정 접속 시도: {uid}')
+        return """
+            <script>
+                alert("비활성화 처리된 계정입니다.\\n관리자에게 문의해 주세요.");
+                location.href = "/auth/login";
+            </script>
+            """
+
+    # 4. 비밀번호 확인 및 로그인 성공 처리
     if user['password'] == upw:
-        # 로그인 성공 로직
         session['user_id'] = user['id']
         session['user_name'] = user['name']
         session['user_role'] = user['role']
@@ -48,7 +56,6 @@ def login():
         return redirect(url_for('index'))
 
     else:
-        # 비밀번호 틀림
         log_system('SECURITY', 'WARNING', 'LOGIN_FAIL', f'비밀번호 불일치 UID: {uid}')
         return "<script>alert('아이디 또는 비밀번호가 일치하지 않습니다.');history.back();</script>"
 
