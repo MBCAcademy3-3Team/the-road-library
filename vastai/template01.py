@@ -41,7 +41,7 @@ else:
 rf = Roboflow(api_key="여기에_API_KEY_입력")
 project = rf.workspace("워크스페이스_이름").project("프로젝트_이름")
 version = project.version(1)
-dataset = version.download("yolov8")
+dataset = version.download("yolov11")
 
 # data.yaml 없을 경우 자동 생성
 yaml_path = f"{dataset.location}/data.yaml"
