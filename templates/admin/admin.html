@@ -605,6 +605,43 @@
 
             <div class="grid-3-1">
                 <!-- 주간 게시글 차트 -->
+                <!-- ===== 방문자 현황 ===== -->
+                <div style="margin-top:20px;">
+                    <div class="panel">
+                        <div class="panel-head">
+                            <span class="panel-title">👥 방문자 현황</span>
+                            <div style="display:flex;gap:8px;">
+                                <button class="topbar-btn" id="vbtn-today" onclick="loadVisitors('today')">오늘</button>
+                                <button class="topbar-btn" id="vbtn-week"  onclick="loadVisitors('week')">주간</button>
+                                <button class="topbar-btn" id="vbtn-month" onclick="loadVisitors('month')">월간</button>
+                            </div>
+                        </div>
+                        <div style="padding:24px;">
+                            <!-- 오늘 요약 -->
+                            <div id="visitor-today-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+                                <div style="background:#f8fafa;border-radius:12px;padding:18px 20px;text-align:center;border:1px solid var(--border);">
+                                    <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;">전체 방문</div>
+                                    <div style="font-size:1.8rem;font-weight:800;" id="v-total">—</div>
+                                </div>
+                                <div style="background:#f8fafa;border-radius:12px;padding:18px 20px;text-align:center;border:1px solid var(--border);">
+                                    <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;">로그인 방문</div>
+                                    <div style="font-size:1.8rem;font-weight:800;color:var(--teal);" id="v-loggedin">—</div>
+                                </div>
+                                <div style="background:#f8fafa;border-radius:12px;padding:18px 20px;text-align:center;border:1px solid var(--border);">
+                                    <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;">비로그인 방문</div>
+                                    <div style="font-size:1.8rem;font-weight:800;color:var(--warning);" id="v-anon">—</div>
+                                </div>
+                            </div>
+                            <!-- 주간/월간 바 차트 -->
+                            <div id="visitor-chart" style="display:none;height:160px;align-items:flex-end;gap:6px;overflow-x:auto;padding-bottom:8px;margin-top:4px;"></div>
+                            <!-- 범례 -->
+                            <div id="visitor-legend" style="display:none;margin-top:12px;gap:16px;font-size:.75rem;font-weight:600;color:var(--text-muted);">
+                                <span>■ <span style="color:var(--teal);">로그인</span></span>
+                                <span>■ <span style="color:var(--warning);">비로그인</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="panel">
                     <div class="panel-head">
                         <span class="panel-title">📈 주간 게시글 현황</span>
@@ -1386,6 +1423,66 @@ async function refreshMemberTable() {
         html.querySelector('#page-members .data-table tbody').innerHTML;
     filterMembers();
 }
+
+    async function loadVisitors(range) {
+    // 버튼 활성화
+    ['today','week','month'].forEach(r => {
+        const btn = document.getElementById('vbtn-' + r);
+        const active = r === range;
+        btn.style.background  = active ? 'var(--teal)' : '';
+        btn.style.color       = active ? '#fff' : '';
+        btn.style.borderColor = active ? 'var(--teal)' : '';
+    });
+
+    const res  = await fetch('/admin/api/visitors');
+    const data = await res.json();
+
+    const summary = document.getElementById('visitor-today-summary');
+    const chart   = document.getElementById('visitor-chart');
+    const legend  = document.getElementById('visitor-legend');
+
+    if (range === 'today') {
+        const d = data.today;
+        document.getElementById('v-total').textContent    = d.total.toLocaleString();
+        document.getElementById('v-loggedin').textContent = d.logged_in.toLocaleString();
+        document.getElementById('v-anon').textContent     = d.anonymous.toLocaleString();
+        summary.style.display = 'grid';
+        chart.style.display   = 'none';
+        legend.style.display  = 'none';
+    } else {
+        summary.style.display = 'none';
+        chart.style.display   = 'flex';
+        legend.style.display  = 'flex';
+
+        const rows = data[range];
+        if (!rows.length) {
+            chart.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;font-weight:600;align-self:center;width:100%;text-align:center;">데이터가 없습니다.</div>';
+            return;
+        }
+
+        const max = Math.max(...rows.map(r => r.total), 1);
+        chart.innerHTML = rows.map(r => {
+            const hLogin = Math.round((r.logged_in / max) * 130);
+            const hAnon  = Math.round((r.anonymous / max) * 130);
+            const label  = r.date.slice(5); // MM-DD
+            return `
+            <div style="flex:0 0 48px;width:48px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:130px;gap:2px;">
+                    <div title="비로그인 ${r.anonymous}명"
+                         style="width:100%;height:${hAnon}px;background:var(--warning);border-radius:4px 4px 0 0;opacity:.7;cursor:pointer;"
+                         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7"></div>
+                    <div title="로그인 ${r.logged_in}명"
+                         style="width:100%;height:${hLogin}px;background:var(--teal);border-radius:4px 4px 0 0;opacity:.85;cursor:pointer;"
+                         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.85"></div>
+                </div>
+                <span style="font-size:.65rem;color:var(--text-muted);font-weight:600;white-space:nowrap;">${label}</span>
+            </div>`;
+        }).join('');
+    }
+}
+
+// 대시보드 진입 시 자동 실행
+loadVisitors('today');
 </script>
 </body>
 </html>

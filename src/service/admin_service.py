@@ -119,6 +119,15 @@ def board_detail(board_id):
     board['created_at'] = board['created_at'].strftime('%Y.%m.%d %H:%M') if board.get('created_at') else ''
     return jsonify(board)
 
+@admin_bp.route('/api/visitors')
+@admin_required
+def visitor_stats():
+    return jsonify({
+        'today': AdminService.get_visitor_stats('today'),
+        'week':  AdminService.get_visitor_stats('week'),
+        'month': AdminService.get_visitor_stats('month')
+    })
+
 class AdminService:
     # 멤버 전체 조회
     @classmethod
@@ -337,5 +346,58 @@ class AdminService:
         except Exception as e:
             print(f"get_board_detail() 오류: {e}")
             return None
+        finally:
+            pass
+
+    @classmethod
+    def get_visitor_stats(cls, range_type='today'):
+        conn = Session.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                if range_type == 'today':
+                    cursor.execute("""
+                        SELECT
+                            COUNT(*)                     AS total,
+                            COUNT(member_id)             AS logged_in,
+                            COUNT(*) - COUNT(member_id)  AS anonymous
+                        FROM system_logs
+                        WHERE category = 'VISIT'
+                          AND action   = 'PAGE_VIEW'
+                          AND DATE(created_at) = CURDATE()
+                    """)
+                    row = cursor.fetchone()
+                    return {
+                        'total': row['total'],
+                        'logged_in': row['logged_in'],
+                        'anonymous': row['anonymous']
+                    }
+                else:
+                    interval = 7 if range_type == 'week' else 30
+                    cursor.execute("""
+                        SELECT
+                            DATE(created_at)             AS date,
+                            COUNT(*)                     AS total,
+                            COUNT(member_id)             AS logged_in,
+                            COUNT(*) - COUNT(member_id)  AS anonymous
+                        FROM system_logs
+                        WHERE category = 'VISIT'
+                          AND action   = 'PAGE_VIEW'
+                          AND created_at >= CURDATE() - INTERVAL %s DAY
+                        GROUP BY DATE(created_at)
+                        ORDER BY date ASC
+                    """, (interval,))
+                    rows = cursor.fetchall()
+                    return [
+                        {
+                            'date': str(r['date']),
+                            'total': r['total'],
+                            'logged_in': r['logged_in'],
+                            'anonymous': r['anonymous']
+                        }
+                        for r in rows
+                    ]
+        except Exception as e:
+            print(f"get_visitor_stats() 오류: {e}")
+            return {'total': 0, 'logged_in': 0, 'anonymous': 0} if range_type == 'today' else []
         finally:
             pass
