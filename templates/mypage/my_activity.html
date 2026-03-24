@@ -237,7 +237,7 @@
                                 </div>
                                 <div class="item-date">차단 일시: {{ block.created_at.strftime('%Y-%m-%d') }}</div>
                             </div>
-                            <button onclick="if(confirm('차단을 해제하시겠습니까?')){ location.href='/my_activity/unblock/{{ block.blocked_id }}#blocks' }"
+                            <button onclick="if(confirm('차단을 해제하시겠습니까?')){ location.href='/mypage/my_activity/unblock/{{ block.blocked_id }}' }"
                                     class="btn btn-sm btn-outline-secondary border-0">
                                 차단 해제
                             </button>
