@@ -102,7 +102,7 @@ def board_list():
     # 1. 파라미터 수신
     viewer_id = session.get('user_id')
     user_role = session.get('user_role')
-    category = request.args.get('category', 'free')  # URL에서 카테고리 가져오기
+    category = request.args.get('category', 'free')  # 카테고리 추가
 
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
@@ -148,27 +148,31 @@ def board_list():
 
     # 3. 정렬 조건
     if sort == 'popular':
+        # like_count 별칭을 사용하기 위해 쿼리 구조에 맞춰 정렬
         order_sentence = "ORDER BY b.is_pinned DESC, like_count DESC, b.created_at DESC"
     else:
         order_sentence = "ORDER BY b.is_pinned DESC, b.created_at DESC"
 
-    # 4. 페이징 및 데이터 조회
+        # 4. 전체 개수 조회 및 total_pages 정의 (에러 방지 핵심)
     count_sql = f"SELECT COUNT(*) as cnt FROM boards b {where_sentence}"
     count_res = fetch_query(count_sql, tuple(query_args), True)
     total_count = count_res['cnt'] if count_res else 0
-    total_pages = ceil(total_count / per_page)
 
+    # 여기서 total_pages를 정의합니다!
+    total_pages = int(ceil(total_count / per_page))
+
+    # 5. 실제 데이터 조회
     sql = f"""
-        SELECT b.*, m.name as writer_name, m.nickname as writer_nickname,
-               (SELECT COUNT(*) FROM board_likes WHERE board_id = b.id) as like_count,
-               (SELECT COUNT(*) FROM board_comments WHERE board_id = b.id) as comment_count,
-               (SELECT COUNT(*) FROM files WHERE board_id = b.id) as file_count
-        FROM boards b
-        JOIN members m ON b.member_id = m.id
-        {where_sentence}
-        ORDER BY b.is_pinned DESC, b.created_at DESC
-        LIMIT %s OFFSET %s
-    """
+            SELECT b.*, m.name as writer_name, m.nickname as writer_nickname,
+                   (SELECT COUNT(*) FROM board_likes WHERE board_id = b.id) as like_count,
+                   (SELECT COUNT(*) FROM board_comments WHERE board_id = b.id) as comment_count,
+                   (SELECT COUNT(*) FROM files WHERE board_id = b.id) as file_count
+            FROM boards b
+            JOIN members m ON b.member_id = m.id
+            {where_sentence}
+            {order_sentence}
+            LIMIT %s OFFSET %s
+        """
     rows = fetch_query(sql, tuple(query_args + [per_page, offset]))
 
     boards = []
@@ -177,14 +181,29 @@ def board_list():
         board.like_count = row['like_count']
         board.comment_count = row['comment_count']
         board.is_pinned = row.get('is_pinned', 0)
-        board.file_count = row.get('file_count', 0)  # 추가
+        board.file_count = row.get('file_count', 0)
         board.writer_nickname = row.get('writer_nickname')
         boards.append(board)
 
-    pagination = {'page': page, 'total_pages': total_pages, 'has_prev': page > 1, 'has_next': page < total_pages, 'prev_num': page - 1, 'next_num': page + 1}
-    return render_template('board/list.html', boards=boards, pagination=pagination,
-                           category=category, search=search, search_type=search_type,
-                           sort=sort, per_page=per_page, show_pinned=show_pinned)
+    # 6. 결과 반환 (pagination 딕셔너리에 total_pages 포함)
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,  # 여기서 정의된 값을 사용
+        'has_prev': page > 1,
+        'has_next': page < total_pages,
+        'prev_num': page - 1,
+        'next_num': page + 1
+    }
+
+    return render_template('board/list.html',
+                           boards=boards,
+                           pagination=pagination,
+                           category=category,
+                           search=search,
+                           search_type=search_type,
+                           sort=sort,
+                           per_page=per_page,
+                           show_pinned=show_pinned)
 
 # 게시물 상세보기
 @board_bp.route('/view/<int:board_id>')
