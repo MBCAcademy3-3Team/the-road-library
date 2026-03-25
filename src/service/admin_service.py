@@ -372,7 +372,7 @@ class AdminService:
                         'anonymous': row['anonymous']
                     }
                 else:
-                    interval = 7 if range_type == 'week' else 30
+                    interval = 7 if range_type == 'week' else 365
                     cursor.execute("""
                         SELECT
                             DATE(created_at)             AS date,

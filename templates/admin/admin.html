@@ -230,11 +230,21 @@
         .stat-change.down { color: var(--danger); }
 
         /* ===== PANEL ===== */
+        /* 변경 */
         .panel {
             background: var(--white);
             border-radius: 16px;
             border: 1px solid var(--border);
             overflow: hidden;
+        }
+
+        /* 모바일에서만 override */
+        @media (max-width: 768px) {
+            .panel {
+                overflow-x: auto;  /* ← 기존 미디어쿼리에 이미 있으면 이걸로 교체 */
+                overflow-y: visible;
+                border-radius: 12px;
+            }
         }
         .panel-head {
             padding: 18px 24px;
@@ -493,6 +503,155 @@
             font-weight: 500;
             margin-bottom: 20px;
         }
+        .data-table td:last-child {
+            text-align: left;
+        }
+        .v-tooltip {
+            position: absolute;
+            background: var(--charcoal);
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 700;
+            font-family: 'Pretendard', sans-serif;
+            padding: 6px 10px;
+            border-radius: 7px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity .15s, transform .15s;
+            line-height: 1.6;
+        }
+        .v-tooltip.show {
+                opacity: 1;
+                transform: translateY(0);
+        }
+        /* ===== 햄버거 버튼 ===== */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+}
+.hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--charcoal);
+    border-radius: 2px;
+    transition: 0.3s;
+}
+
+/* ===== 사이드바 오버레이 ===== */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+}
+.sidebar-overlay.open { display: block; }
+
+/* ===== 모바일 ===== */
+@media (max-width: 768px) {
+
+    /* 사이드바 — 기본 숨김, 열리면 슬라이드인 */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 200;
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* 메인 — 사이드바 공간 제거 */
+    .main {
+        margin-left: 0;
+    }
+
+    /* 햄버거 버튼 표시 */
+    .hamburger {
+        display: flex;
+    }
+
+    /* 탑바 */
+    .topbar {
+        padding: 0 16px;
+    }
+
+    /* 컨텐츠 패딩 */
+    .content {
+        padding: 20px 16px;
+    }
+
+    /* 스탯 카드 — 2열 */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .stat-value { font-size: 1.6rem; }
+
+    /* 그리드 — 1열로 */
+    .grid-3-1 {
+        grid-template-columns: 1fr;
+    }
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    /* 방문자 현황 margin-top 제거 */
+    .grid-3-1 > div:first-child {
+        margin-top: 0 !important;
+    }
+
+    /* 섹션 타이틀 */
+    .section-title { font-size: 1.1rem; }
+
+    /* 필터바 — 줄바꿈 허용 */
+    .filter-bar {
+        flex-wrap: wrap;
+    }
+    .filter-bar .search-input {
+        flex: 1 1 100%;
+    }
+    .filter-bar .filter-select {
+        flex: 1;
+    }
+
+    /* 테이블 — 가로 스크롤 */
+    .panel {
+        overflow-x: auto;
+    }
+    .data-table {
+        min-width: 600px;
+    }
+
+    /* 방문자 오늘 요약 — 1열 */
+    #visitor-today-summary {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* 모달 */
+    .modal-box {
+        padding: 24px 20px;
+        border-radius: 16px;
+    }
+
+    /* 토스트 */
+    .toast {
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+        width: auto;
+    }
+}
     </style>
 </head>
 <body>
@@ -563,8 +722,13 @@
 
     <!-- TOPBAR -->
     <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+            <span></span><span></span><span></span>
+        </button>
         <div class="topbar-title" id="topbar-title">📊 대시보드</div>
-        <div class="topbar-actions">
+    </div>
+    <div class="topbar-actions">
             <button class="topbar-btn" onclick="showToast('🔔 알림이 없습니다.')">🔔 알림</button>
         </div>
     </div>
@@ -616,7 +780,7 @@
                                 <button class="topbar-btn" id="vbtn-month" onclick="loadVisitors('month')">월간</button>
                             </div>
                         </div>
-                        <div style="padding:24px;">
+                        <div style="padding:20px 24px;min-height:198px;display:flex;flex-direction:column;justify-content:center;">
                             <!-- 오늘 요약 -->
                             <div id="visitor-today-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
                                 <div style="background:#f8fafa;border-radius:12px;padding:18px 20px;text-align:center;border:1px solid var(--border);">
@@ -633,7 +797,7 @@
                                 </div>
                             </div>
                             <!-- 주간/월간 바 차트 -->
-                            <div id="visitor-chart" style="display:none;height:160px;align-items:flex-end;gap:6px;overflow-x:auto;padding-bottom:8px;margin-top:4px;"></div>
+                            <div id="visitor-chart" style="display:none;height:140px;align-items:flex-end;gap:6px;overflow-x:auto;padding-bottom:4px;"></div>
                             <!-- 범례 -->
                             <div id="visitor-legend" style="display:none;margin-top:12px;gap:16px;font-size:.75rem;font-weight:600;color:var(--text-muted);">
                                 <span>■ <span style="color:var(--teal);">로그인</span></span>
@@ -735,7 +899,7 @@
                     <th style="width:70px;">등급</th>
                     <th style="width:100px;">가입일</th>
                     <th style="width:70px;">상태</th>
-                    <th style="width:160px;min-width:160px;">관리</th>
+                    <th style="width:100px;min-width:100px;">관리</th>
                 </tr>
             </thead>
             <tbody>
@@ -825,13 +989,13 @@
                 <tr>
                     <th style="width:60px;">번호</th>
                     <th style="width:80px;">카테고리</th>
-                    <th style="width:280px;">제목</th>
+                    <th style="width:260px;">제목</th>
                     <th style="width:80px;">작성자</th>
                     <th style="width:90px;">작성일</th>
                     <th style="width:70px;">조회수</th>
                     <th style="width:70px;">신고수</th>
                     <th style="width:70px;">상태</th>
-                    <th style="width:220px;min-width:220px;">관리</th>
+                    <th style="width:180px;min-width:180px;">관리</th>
                 </tr>
             </thead>
             <tbody>
@@ -1156,6 +1320,8 @@
 <div class="toast" id="toast">
     <span id="toast-msg">저장되었습니다.</span>
 </div>
+        <div class="v-tooltip" id="v-tooltip"></div>
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 <script>
     function navigate(page, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1425,7 +1591,6 @@ async function refreshMemberTable() {
 }
 
     async function loadVisitors(range) {
-    // 버튼 활성화
     ['today','week','month'].forEach(r => {
         const btn = document.getElementById('vbtn-' + r);
         const active = r === range;
@@ -1449,40 +1614,173 @@ async function refreshMemberTable() {
         summary.style.display = 'grid';
         chart.style.display   = 'none';
         legend.style.display  = 'none';
-    } else {
+
+    } else if (range === 'week') {
         summary.style.display = 'none';
         chart.style.display   = 'flex';
         legend.style.display  = 'flex';
 
-        const rows = data[range];
-        if (!rows.length) {
-            chart.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;font-weight:600;align-self:center;width:100%;text-align:center;">데이터가 없습니다.</div>';
-            return;
+        // 오늘 기준 최근 7일 날짜 배열 생성 (오늘이 맨 우측)
+        const slots = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().slice(0, 10); // YYYY-MM-DD
+            const label = (d.getMonth() + 1) + '/' + d.getDate();
+            slots.push({ key, label, logged_in: 0, anonymous: 0, total: 0 });
         }
 
-        const max = Math.max(...rows.map(r => r.total), 1);
-        chart.innerHTML = rows.map(r => {
-            const hLogin = Math.round((r.logged_in / max) * 130);
-            const hAnon  = Math.round((r.anonymous / max) * 130);
-            const label  = r.date.slice(5); // MM-DD
-            return `
-            <div style="flex:0 0 48px;width:48px;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                <div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:130px;gap:2px;">
-                    <div title="비로그인 ${r.anonymous}명"
-                         style="width:100%;height:${hAnon}px;background:var(--warning);border-radius:4px 4px 0 0;opacity:.7;cursor:pointer;"
-                         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7"></div>
-                    <div title="로그인 ${r.logged_in}명"
-                         style="width:100%;height:${hLogin}px;background:var(--teal);border-radius:4px 4px 0 0;opacity:.85;cursor:pointer;"
-                         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.85"></div>
-                </div>
-                <span style="font-size:.65rem;color:var(--text-muted);font-weight:600;white-space:nowrap;">${label}</span>
-            </div>`;
-        }).join('');
+        // API 데이터 매핑
+        const rows = data.week || [];
+        rows.forEach(r => {
+            const slot = slots.find(s => s.key === r.date);
+            if (slot) {
+                slot.logged_in = r.logged_in;
+                slot.anonymous = r.anonymous;
+                slot.total     = r.total;
+            }
+        });
+
+        chart.dataset.range = 'week';
+        renderBarChart(chart, slots);
+
+    } else if (range === 'month') {
+        summary.style.display = 'none';
+        chart.style.display   = 'flex';
+        legend.style.display  = 'flex';
+
+        // 이번달 기준 최근 N개월 (이번달 맨 우측, 최대 12개)
+        const now = new Date();
+        const slots = [];
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); // YYYY-MM
+            const label = (d.getMonth() + 1) + '월';
+            slots.push({ key, label, logged_in: 0, anonymous: 0, total: 0 });
+        }
+
+        // API 데이터 매핑 (date: "YYYY-MM-DD" → "YYYY-MM"으로 집계)
+        const rows = data.month || [];
+        rows.forEach(r => {
+            const monthKey = r.date.slice(0, 7); // YYYY-MM
+            const slot = slots.find(s => s.key === monthKey);
+            if (slot) {
+                slot.logged_in += r.logged_in;
+                slot.anonymous += r.anonymous;
+                slot.total     += r.total;
+            }
+        });
+
+        // 데이터 없는 앞쪽 달 제거 (데이터 있는 달부터 표시)
+        const firstDataIdx = slots.findIndex(s => s.total > 0);
+        const trimmed = firstDataIdx >= 0 ? slots.slice(firstDataIdx) : slots.slice(-1);
+
+        chart.dataset.range = 'month';
+        renderBarChart(chart, trimmed);
     }
 }
+function renderBarChart(container, slots) {
+    const max = Math.max(...slots.map(s => s.total), 1);
 
+    if (slots.every(s => s.total === 0)) {
+        container.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem;font-weight:600;align-self:center;width:100%;text-align:center;">데이터가 없습니다.</div>';
+        return;
+    }
+
+    const flexStyle = container.dataset.range === 'week'
+        ? 'flex:1;min-width:0;'
+        : 'flex:0 0 44px;width:44px;';
+
+    container.innerHTML = slots.map((s, i) => {
+        const hLogin = Math.max(Math.round((s.logged_in / max) * 110), s.logged_in > 0 ? 2 : 0);
+        const hAnon  = Math.max(Math.round((s.anonymous / max) * 110), s.anonymous > 0 ? 2 : 0);
+        return `
+        <div style="${flexStyle}display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;"
+             data-idx="${i}"
+             onmouseenter="showVTooltip(event, ${s.logged_in}, ${s.anonymous}, '${s.label}')"
+             onmouseleave="hideVTooltip()">
+            <div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:110px;gap:1px;">
+                <div style="width:100%;height:${hAnon}px;background:var(--warning);border-radius:3px 3px 0 0;opacity:.75;transition:.15s;"></div>
+                <div style="width:100%;height:${hLogin}px;background:var(--teal);border-radius:3px 3px 0 0;opacity:.85;transition:.15s;"></div>
+            </div>
+            <span style="font-size:.62rem;color:var(--text-muted);font-weight:600;white-space:nowrap;">${s.label}</span>
+        </div>`;
+    }).join('');
+}
+
+const _tip = document.getElementById('v-tooltip');
+
+function showVTooltip(e, loggedIn, anonymous, label) {
+    _tip.innerHTML = `
+        <div style="margin-bottom:3px;color:rgba(255,255,255,.6);font-size:.68rem;">${label}</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span style="width:8px;height:8px;border-radius:2px;background:var(--teal);display:inline-block;"></span>
+            로그인 <strong style="margin-left:auto;padding-left:12px;">${loggedIn.toLocaleString()}명</strong>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+            <span style="width:8px;height:8px;border-radius:2px;background:var(--warning);display:inline-block;"></span>
+            비로그인 <strong style="margin-left:auto;padding-left:12px;">${anonymous.toLocaleString()}명</strong>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,.15);margin-top:5px;padding-top:4px;display:flex;justify-content:space-between;gap:12px;">
+            <span style="color:rgba(255,255,255,.6);">합계</span>
+            <strong>${(loggedIn + anonymous).toLocaleString()}명</strong>
+        </div>`;
+
+    _tip.classList.add('show');
+
+    // 위치 계산 — 막대 중앙 상단
+    const rect = e.currentTarget.getBoundingClientRect();
+    const tipW = 160;
+    let left = rect.left + rect.width / 2 - tipW / 2 + window.scrollX;
+    let top  = rect.top - _tip.offsetHeight - 10 + window.scrollY;
+
+    // 화면 밖으로 나가면 보정
+    if (left < 8) left = 8;
+    if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+
+    _tip.style.left  = left + 'px';
+    _tip.style.top   = top + 'px';
+    _tip.style.width = tipW + 'px';
+}
+
+function hideVTooltip() {
+    _tip.classList.remove('show');
+}
 // 대시보드 진입 시 자동 실행
 loadVisitors('today');
+
+    function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+}
+
+function closeSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+// 네비게이션 클릭 시 모바일에서 자동 닫기
+const _origNavigate = navigate;
+// navigate 함수 끝에 closeSidebar() 추가
+function navigate(page, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    btn.classList.add('active');
+    const titles = {
+        dashboard: '📊 대시보드',
+        members: '👤 회원 관리',
+        posts: '💬 게시글 관리',
+        files: '📂 AI 자료실',
+        risk: '⚠️ AI 위험 예보',
+    };
+    document.getElementById('topbar-title').textContent = titles[page];
+    if (page === 'members') applyMemberPage(1);
+    if (page === 'posts')   applyPostPage(1);
+    closeSidebar(); // ← 모바일에서 메뉴 선택 후 자동 닫기
+}
 </script>
 </body>
 </html>
