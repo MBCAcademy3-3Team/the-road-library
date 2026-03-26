@@ -124,7 +124,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // 1. 차트 초기화
+    // 1. 차트 초기화 (기존 동일)
     const ctx = document.getElementById('statChart').getContext('2d');
     const statChart = new Chart(ctx, {
         type: 'bar',
@@ -132,7 +132,7 @@
             labels: ['멧돼지', '고라니', '멧토끼', '다람쥐', '왜가리'],
             datasets: [{
                 label: '탐지 수',
-                data: [0, 0, 0, 0, 0], // 초기값
+                data: [0, 0, 0, 0, 0],
                 backgroundColor: '#20828A',
                 borderRadius: 5
             }]
@@ -140,48 +140,82 @@
         options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 
-    // 2. 파일 업로드 로직
     const fileInput = document.getElementById('videoFile');
     const startBtn = document.getElementById('startBtn');
     const statusText = document.getElementById('statusText');
     const progressBar = document.getElementById('analysisProgress');
+    const videoStream = document.getElementById('videoStream');
+    const placeholderUI = document.getElementById('placeholderUI');
 
+    // 2. 파일 선택 시 로직 (기존 동일)
     fileInput.onchange = function() {
         if(this.files.length > 0) {
             startBtn.classList.replace('btn-outline-secondary', 'btn-teal');
             startBtn.disabled = false;
             statusText.innerText = "분석 준비 완료: " + this.files[0].name;
-            startBtn.innerText = "분석 시작";
+
+            // 선택한 이미지 미리보기 (분석 전)
+            videoStream.src = URL.createObjectURL(this.files[0]);
+            videoStream.style.display = 'block';
+            placeholderUI.style.display = 'none';
         }
     };
 
-    // 3. 분석 시작 시뮬레이션
-    document.getElementById('uploadForm').onsubmit = function(e) {
+    // 3. [핵심] 실제 서버 분석 연결 로직
+    document.getElementById('uploadForm').onsubmit = async function(e) {
         e.preventDefault();
+
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        // 서버로 보낼 데이터 주머니 만들기
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // UI 상태 변경
         statusText.innerText = "YOLOv11 모델 분석 중...";
-        progressBar.style.width = "65%";
+        progressBar.style.width = "40%"; // 진행바 살짝 올리기
+        startBtn.disabled = true;
 
-        setTimeout(() => {
-            progressBar.style.width = "100%";
-            statusText.innerText = "분석 완료!";
-            document.getElementById('placeholderUI').style.display = 'none';
-            document.getElementById('videoStream').style.display = 'block';
+        try {
+            // [연결 포인트] 서버에 분석 요청 보내기
+            // Blueprint 경로가 /model이면 아래 주소로 보냅니다.
+            const response = await fetch('/model/detect', {
+                method: 'POST',
+                body: formData
+            });
 
-            // 시뮬레이션용 데이터 업데이트
-            statChart.data.datasets[0].data = [15, 42, 10, 185, 5];
-            statChart.update();
+            const result = await response.json();
 
-            document.getElementById('detectionList').innerHTML = `
-                <div class="d-flex justify-content-between border-bottom py-1 small">
-                    <span class="text-danger fw-bold">고라니</span>
-                    <span class="text-muted">98% 신뢰도</span>
-                </div>
-                <div class="d-flex justify-content-between border-bottom py-1 small">
-                    <span>차량</span>
-                    <span class="text-muted">92% 신뢰도</span>
-                </div>
-            `;
-        }, 1500);
+            if (result.success) {
+                // 4. 서버가 준 진짜 데이터로 UI 업데이트
+                progressBar.style.width = "100%";
+                statusText.innerText = "분석 완료!";
+
+                // 차트 업데이트 (서버에서 준 counts 리스트 대입)
+                statChart.data.datasets[0].data = result.counts;
+                statChart.update();
+
+                // 리스트 업데이트 (서버에서 준 객체들 리스트 만들기)
+                const listHTML = result.detections.map(d => `
+                    <div class="d-flex justify-content-between border-bottom py-1 small">
+                        <span class="${d.label === '고라니' || d.label === '멧돼지' ? 'text-danger fw-bold' : ''}">${d.label}</span>
+                        <span class="text-muted">${d.conf}</span>
+                    </div>
+                `).join('');
+
+                document.getElementById('detectionList').innerHTML = listHTML || '<p class="text-muted small">탐지된 객체 없음</p>';
+            } else {
+                alert("분석 실패: " + result.error);
+                statusText.innerText = "분석 오류 발생";
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            statusText.innerText = "서버 연결 오류";
+        } finally {
+            startBtn.disabled = false;
+        }
     };
 </script>
 {% endblock %}
