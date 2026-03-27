@@ -268,7 +268,7 @@
                         <span class="detail-label">생년월일</span>
                         <span class="detail-value">
                             {% if user.birth_day %}
-                            {{ user.birth_day.strftime('%Y년 %m월 %d일') }}
+                            {{ user.birth_day.strftime('%Y') }}년 {{ user.birth_day.strftime('%m') }}월 {{ user.birth_day.strftime('%d') }}일
                             {% else %}
                             정보 없음
                             {% endif %}
