@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 기본 모듈
+import os
 import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
