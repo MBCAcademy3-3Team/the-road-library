@@ -315,6 +315,7 @@ def ai_results():
     user_id = session.get('user_id')
 
     print("page : ", page)
+    print('user_id : ', user_id)
 
     try:
         # 3. 전체 데이터 개수 조회 (SQL 직접 사용)
@@ -339,14 +340,13 @@ def ai_results():
 
         # 5. html의 pagination 객체 구조에 맞춰 데이터 구성
         pagination_obj = {
-            'items': items if items else [],
+            'records': items if items else [],  # 'items'를 'records'로 변경
             'page': page,
             'total_pages': total_pages,
             'has_prev': page > 1,
             'has_next': page < total_pages,
             'prev_num': page - 1,
             'next_num': page + 1,
-            # HTML의 {% for p in pagination.page_range %}와 이름을 맞춤
             'page_range': list(range(1, total_pages + 1))
         }
         print('pagination_obj : ', pagination_obj)

@@ -50,8 +50,10 @@
 
         <div class="activity-card-container">
             <div class="ai-result-list">
-                {% if pagination.items %}
-                    {% for item in pagination.items %}
+                {# 1. 여기서 pagination.items를 pagination.records로 변경 #}
+                {% if pagination.records %}
+                    {# 2. 여기서 pagination.items를 pagination.records로 변경 #}
+                    {% for item in pagination.records %}
                     <div class="activity-item">
                         <div>
                             <div class="item-title text-dark">{{ item['filename'] }}</div>
