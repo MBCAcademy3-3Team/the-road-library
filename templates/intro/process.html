@@ -75,7 +75,7 @@
                 <h2 class="h3 mb-0 fw-bold">데이터 수집 및 라벨링</h2>
             </div>
             <p class="lh-lg">
-                AI 모델의 성능은 양질의 데이터에 달려 있습니다. 우리는 국내 도로 환경에서 발생할 수 있는 야생동물 데이터를 수집하고, <span class="point-text">Roboflow 도구를 활용</span>하여 정밀한 라벨링 작업을 수행했습니다.
+                AI 모델의 성능은 양질의 데이터에 달려 있습니다.<br> 우리는 국내 도로 환경에서 발생할 수 있는 야생동물 데이터를 수집하고,<br> <span class="point-text">Roboflow 도구를 </span> 활용하여 정밀한 라벨링 작업을 수행했습니다.
             </p>
             <p class="lh-lg text-muted small">
                 * 멧돼지, 고라니, 너구리 등 주요 출몰 동물에 대해 <br>수천 장의 이미지에 바운딩 박스를 설정하여 학습 데이터를 구축했습니다.
@@ -89,8 +89,8 @@
     </div>
 
     <div class="row align-items-center flex-lg-row-reverse mb-5">
-        <div class="col-lg-6 mb-4 mb-lg-0">
-            <div class="d-flex align-items-center mb-3">
+        <div class="col-lg-6 mb-4 mb-lg-0 text-lg-end">
+            <div class="d-flex align-items-center mb-3 justify-content-lg-end">
                 <span class="badge bg-secondary me-3 fs-6 p-2">STEP 2</span>
                 <h2 class="h3 mb-0 fw-bold">YOLOv11 모델 학습</h2>
             </div>
@@ -103,7 +103,7 @@
         </div>
         <div class="col-lg-6">
             <div class="img-box-fixed shadow-sm">
-                <img src="/static/img/develop_training.png" alt="YOLOv11 모델 학습 화면">
+                <img src="/static/img/model.png" alt="YOLOv11 모델 학습 화면">
             </div>
         </div>
     </div>
@@ -115,7 +115,7 @@
                 <h2 class="h3 mb-0 fw-bold">Flask 기반 웹 서비스 구현</h2>
             </div>
             <p class="lh-lg">
-                학습된 모델을 사용자가 쉽게 사용할 수 있도록 Flask 웹 프레임워크를 활용하여 웹 서비스를 구축했습니다. 사용자가 영상이나 이미지를 업로드하면 <span class="point-text">백엔드에서 실시간으로 분석</span>하여 결과를 되돌려줍니다.
+                학습된 모델을 사용자가 쉽게 사용할 수 있도록 <br>Flask 웹 프레임워크를 활용하여 웹 서비스를 구축했습니다. <br>사용자가 영상이나 이미지를 업로드하면 <span class="point-text">백엔드에서 실시간으로 분석</span>하여 결과를 되돌려줍니다.
             </p>
             <p class="lh-lg text-muted small">
                 * OpenCV를 활용하여 영상 프레임을 처리하고, <br>분석된 결과(바운딩 박스)를 웹 화면에 동적으로 렌더링하는 로직을 구현했습니다.
