@@ -119,8 +119,8 @@ def board_list():
     else:
         where_clauses = ["b.active = 1"]
 
-    # [추가] 게시판 카테고리 필터링 (필수)
-    where_clauses.append("b.category = %s")
+    # [추가] 공지글은 카테고리 무관하게 표시
+    where_clauses.append("(b.category = %s OR b.is_pinned = 1)")
     query_args = [category]
 
     # [추가] 차단한 사용자 필터링: 로그인 상태일 때만 작동
