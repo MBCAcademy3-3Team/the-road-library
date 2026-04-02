@@ -7,7 +7,7 @@ from src.domain.scrap import Scrap
 
 __all__ = [
     'Member',
-    'board.py',
+    'Board',
     'Comment',
     'File', 'AllowedExtension', 'MAX_FILE_SIZE',
     'Report', 'ReportReason', 'ReportSummary', 'REPORT_BLOCK_THRESHOLD',
