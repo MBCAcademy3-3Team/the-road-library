@@ -1,26 +1,25 @@
-# service/introduce_service.py
-from flask import Blueprint, render_template
-
-# Blueprint 설정
-introduce_bp = Blueprint('introduce', __name__)
-
-@introduce_bp.route('/background', methods=['GET', 'POST'])
-def get_background_data():
-    # 여기서 필요한 데이터 처리를 할 수 있습니다.
-    return render_template('intro/background.html')
+# src/service/introduce_service.py
 
 
-@introduce_bp.route('/features', methods=['GET', 'POST'])
-def get_features_data():
-    # 여기서 필요한 데이터 처리를 할 수 있습니다.
-    return render_template('intro/features.html')
+class IntroduceService:
+    """
+    현재는 정적 페이지 렌더링만 담당.
+    추후 배경 데이터, 기능 소개, 로고, 프로세스 정보를
+    DB에서 동적으로 가져올 경우 이 Service에 로직 추가.
+    """
 
-@introduce_bp.route('/logo', methods=['GET', 'POST'])
-def get_logo_data():
-    # 여기서 필요한 데이터 처리를 할 수 있습니다.
-    return render_template('intro/logo.html')
+    def get_background(self) -> dict:
+        """배경 소개 페이지 데이터"""
+        return {}
 
-@introduce_bp.route('/process', methods=['GET', 'POST'])
-def get_process_data():
-    # 여기서 필요한 데이터 처리를 할 수 있습니다.
-    return render_template('intro/process.html')
+    def get_features(self) -> dict:
+        """기능 소개 페이지 데이터"""
+        return {}
+
+    def get_logo(self) -> dict:
+        """로고 소개 페이지 데이터"""
+        return {}
+
+    def get_process(self) -> dict:
+        """프로세스 소개 페이지 데이터"""
+        return {}

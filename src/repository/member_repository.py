@@ -51,3 +51,10 @@ class MemberRepository:
         )
         row = fetch_query("SELECT LAST_INSERT_ID() AS new_id", one=True)
         return row['new_id'] if row else -1
+
+    def update_profile_img(self, member_id: int, file_url: str):
+        """프로필 이미지 URL 업데이트"""
+        execute_query(
+            "UPDATE members SET profile_img = %s WHERE id = %s",
+            (file_url, member_id)
+        )

@@ -20,7 +20,6 @@ from src.common import init_app, log_system
 #  여기에 코드를 넣기 전에 항상 src/service/__init__.py에 해당 Blueprint를 추가했는지 검토해주세요.
 from src.service import (
     mypage_bp,
-    introduce_bp,
     admin_bp,
     tip_bp,
     model_bp,
@@ -32,6 +31,7 @@ from src.controller import (
     auth_bp,
     board_bp,
     faq_bp,
+    introduce_bp,
 )
 # FIXME end
 
