@@ -148,14 +148,14 @@
                                 <button class="btn btn-sm btn-link text-decoration-none p-0 text-muted small" onclick="toggleReplyForm({{ c.id }})">답글</button>
 
                                 {# 내 댓글이 아닐 때만 신고 버튼 노출 #}
-                                {% if session.get('user_id') != c.member_id and c.content != '클린봇에 의해 삭제된 댓글입니다.' %}
+                                {% if session.get('user_id') != c.member_id and c.active != 0 %}
                                 <span class="text-muted small">|</span>
                                 <button class="btn btn-sm btn-link text-decoration-none p-0 text-warning small fw-semibold"
                                         onclick="openReportModal('comment', {{ c.id }})">신고</button>
                                 {% endif %}
 
                                 {# 내용이 '삭제된 댓글입니다.'가 아닐 때만 수정/삭제 버튼 노출 #}
-                                {% if session.get('user_id') == c.member_id and c.content != '삭제된 댓글입니다.' %}
+                                {% if session.get('user_id') == c.member_id and c.active != 0 %}
                                 <span class="text-muted small">|</span>
                                 <button class="btn btn-sm btn-link text-decoration-none p-0 text-muted small" onclick="showEditForm({{ c.id }})">수정</button>
                                 <button class="btn btn-sm btn-link text-decoration-none p-0 text-danger small" onclick="deleteComment({{ c.id }})">삭제</button>
@@ -165,7 +165,7 @@
 
                         <div id="comment-body-{{ c.id }}">
                             {# 삭제된 댓글은 글씨를 흐리게(text-muted) 표현 #}
-                            <p class="mb-2 {% if c.content == '삭제된 댓글입니다.' %}text-muted fst-italic{% else %}text-secondary{% endif %}" id="comment-text-{{ c.id }}">
+                            <p class="mb-2 {% if c.active == 0 %}text-muted fst-italic{% else %}text-secondary{% endif %}" id="comment-text-{{ c.id }}">
                                 {{ c.content | safe }}
                             </p>
                         </div>
