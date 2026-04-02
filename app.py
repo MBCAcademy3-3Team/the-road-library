@@ -18,12 +18,6 @@ from src.common import init_app, log_system
 # 서비스 모듈
 # FIXME : 반드시 이 부분만 수정해주세요.
 #  여기에 코드를 넣기 전에 항상 src/service/__init__.py에 해당 Blueprint를 추가했는지 검토해주세요.
-from src.service import (
-    admin_bp,
-    model_bp,
-    # 여기 아래에 계속 추가하기
-)
-
 from src.controller import (
     auth_bp,
     board_bp,
@@ -32,6 +26,8 @@ from src.controller import (
     mypage_bp,
     profile_bp,
     tip_bp,
+    model_bp,
+    admin_bp,
 )
 # FIXME end
 
