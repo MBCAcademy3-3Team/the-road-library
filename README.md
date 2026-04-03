@@ -4,25 +4,43 @@
 > 운전자들이 서로의 경험과 지식을 공유하는 안전 주행 통합 플랫폼
 
 ---
-
 ## 🛠 기술 스택
 
+### Backend
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?style=flat&logo=flask&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white)
-![YOLOv11](https://img.shields.io/badge/YOLOv11-00FFFF?style=flat&logo=yolo&logoColor=black)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=flat&logo=cloudinary&logoColor=white)
+
+### Frontend
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=white)
+
+### AI / ML
+![YOLOv11](https://img.shields.io/badge/YOLO_v11-00FFFF?style=flat&logo=yolo&logoColor=black)
+![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=flat&logo=opencv&logoColor=white)
+
+### Database
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white)
+![TiDB](https://img.shields.io/badge/TiDB-CC0000?style=flat&logo=mysql&logoColor=white)
+
+### Storage
+![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=flat&logo=cloudinary&logoColor=white)
+
+### Tools
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)
+![VSCode](https://img.shields.io/badge/VS_Code-007ACC?style=flat&logo=visualstudiocode&logoColor=white)
+![PyCharm](https://img.shields.io/badge/PyCharm-000000?style=flat&logo=pycharm&logoColor=white)
 
 ## 👥 팀원
 
-| 이름      | 역할     | 담당 기능                 |
-|---------|--------|-----------------------|
+| 이름      | 역할     | 담당 기능               |
+|---------|--------|---------------------|
 | 여민엽     | -      | 소개, 신고, 도움말, AI 모델 개발 |
-| 김소현     | -      | 게시판 (도란도란)            |
-| 심유경     | -      | 마이페이지, 로그인, 회원가입      |
-| 안건우     | 부조장    | 관리자 페이지, AI 모델 개발     |
- | **장은재** | **조장** | 프로젝트 총괄, _문서화_        | 
+| 김소현     | -      | 게시판 (도란도란)          |
+| 심유경     | -      | 마이페이지, 로그인, 회원가입    |
+| 안건우     | 부조장    | 관리자 페이지, AI 모델 개발   |
+ | **장은재** | **조장** | 프로젝트 총괄, _문서화_ | 
 
 ## 📁 프로젝트 구조 (Project Structure)
 
