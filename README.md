@@ -351,3 +351,9 @@ except PermissionError as e:
 | `faq_bp` | `/faq` | FAQ 조회 |
 | `introduce_bp` | `/introduce` | 서비스 소개 |
 | `tip_bp` | `/tip` | 운전 팁 |
+
+## 📡 API 명세서
+
+[![API Docs](https://img.shields.io/badge/API%20Docs-도(道)서관-20828A?style=for-the-badge)](https://mbcacademy3-3team.github.io/the-road-library/api_docs.html)
+
+👉 [API 명세서 바로가기](https://mbcacademy3-3team.github.io/the-road-library/api_docs.html)
