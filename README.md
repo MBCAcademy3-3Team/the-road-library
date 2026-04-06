@@ -398,3 +398,9 @@ except PermissionError as e:
 ## 📋 기능 명세서
 
 자세한 기능 명세는 [features.md](docs/features.md)를 참고하세요.
+
+## 🎬 시연 영상
+
+[![시연 영상](https://img.youtube.com/vi/DkYkPcroOzQ/maxresdefault.jpg)](https://youtu.be/DkYkPcroOzQ)
+
+> 👆 이미지 클릭 시 시연 영상으로 이동합니다.
