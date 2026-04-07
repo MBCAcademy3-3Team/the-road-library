@@ -339,6 +339,7 @@ class AdminRepository:
         conn = Session.get_connection()
         try:
             with conn.cursor() as cursor:
+                # 1. 게시글 기본 정보 조회
                 cursor.execute(
                     """
                     SELECT b.id, b.title, b.content, b.created_at,
@@ -353,15 +354,40 @@ class AdminRepository:
                 board = cursor.fetchone()
                 if not board:
                     return None
+
+                # 2. 게시글 자체에 대한 신고 내역 조회
                 cursor.execute(
-                    "SELECT reason FROM reports WHERE board_id = %s",
+                    "SELECT reason, detail, created_at FROM reports WHERE board_id = %s ORDER BY created_at DESC",
                     (board_id,)
                 )
-                reports = cursor.fetchall()
-                board['reports'] = [r['reason'] for r in reports] if reports else []
+                board['reports'] = cursor.fetchall()
+
+                # 3. [수정 지점] 테이블명을 comment_report로 변경하고 쿼리 실행
+                # JOIN하는 댓글 테이블 이름(예: board_comments)이 실제와 맞는지 꼭 확인하세요!
+                try:
+                    cursor.execute(
+                        """
+                        SELECT 
+                            cr.reason, 
+                            cr.detail, 
+                            c.content AS content, -- JS와 맞추기 위해 별칭(alias) 추가
+                            cr.created_at
+                        FROM comment_report cr  -- <--- 여기서 's'를 지워주세요!
+                        JOIN board_comments c ON cr.comment_id = c.id
+                        WHERE c.board_id = %s
+                        ORDER BY cr.created_at DESC
+                        """,
+                        (board_id,)
+                    )
+                    board['comment_reports'] = cursor.fetchall()
+                except Exception as ce:
+                    print(f"댓글 신고 조회 오류: {ce}")
+                    board['comment_reports'] = []
+
                 return board
+
         except Exception as e:
-            print(f"find_board_by_id() 오류: {e}")
+            print(f"find_board_by_id() 전체 오류: {e}")
             return None
 
     def set_board_active(self, board_id: int, active: int) -> bool:

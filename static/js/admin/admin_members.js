@@ -65,13 +65,35 @@ document.getElementById('addMemberForm').addEventListener('submit', async functi
 
 document.getElementById('editMemberForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const res = await fetch(this.action, { method:'POST', body: new FormData(this) });
+
+    const res = await fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest' // 서버가 AJAX 요청임을 인식하게 함
+        }
+    });
+
+    // 1. 권한 없음 (Admin 수정 시도 등)
     if (res.status === 403) {
-        showToast('❌ 권한이 없습니다.', 'error');
+        showToast('❌ 최고 관리자 계정은 수정할 수 없습니다.', 'error');
         return;
     }
-    if (res.ok) { closeEditMemberModal(); showToast('✅ 수정되었습니다.'); location.reload(); }
-    else showToast('❌ 수정 실패', 'error');
+
+    // 2. 성공 (200 OK)
+    if (res.ok) {
+        closeEditMemberModal();
+        showToast('✅ 수정되었습니다.');
+        // 새로고침 전 잠깐 토스트를 보여주기 위해 0.5초 뒤 새로고침 추천
+        setTimeout(() => location.reload(), 500);
+    }
+    // 3. 그 외 실패 (400, 500 등)
+    else {
+        // 서버에서 전달한 에러 메시지가 있다면 가져옴
+        const errorData = await res.json().catch(() => ({}));
+        const msg = errorData.error || '수정 실패';
+        showToast(`❌ ${msg}`, 'error');
+    }
 });
 
 document.getElementById('toggleForm').addEventListener('submit', async function(e) {

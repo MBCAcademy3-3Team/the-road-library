@@ -76,25 +76,40 @@ def add_member():
 @admin_required
 def update_member(member_id):
     try:
+        # 서비스 호출
         success = admin_service.update_member(
-            member_id    = member_id,
-            name         = request.form.get('name'),
-            nickname     = request.form.get('nickname'),
-            password     = request.form.get('password'),
-            role         = request.form.get('role'),
-            active       = request.form.get('active'),
-            birthdate    = request.form.get('birthdate') or None,
-            current_role = session.get('user_role'),
+            member_id=member_id,
+            name=request.form.get('name'),
+            nickname=request.form.get('nickname'),
+            password=request.form.get('password'),
+            role=request.form.get('role'),
+            active=request.form.get('active'),
+            birthdate=request.form.get('birthdate') or None,
+            current_role=session.get('user_role'),
         )
-        flash('✅ 회원 정보가 수정되었습니다.' if success else '❌ 수정 중 오류가 발생했습니다.',
-              'success' if success else 'danger')
-    except PermissionError as e:
-        flash(str(e), 'danger')
-        return ('', 403) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' \
-               else redirect(url_for('admin.members'))
 
-    return ('', 200) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' \
-           else redirect(url_for('admin.members'))
+        if success:
+            flash('✅ 회원 정보가 수정되었습니다.', 'success')
+            # 성공 시 200 반환
+            return ('', 200) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' \
+                else redirect(url_for('admin.members'))
+        else:
+            # 로직상 실패(DB 오류 등) 시 400 반환
+            return (jsonify({"error": "수정 중 오류가 발생했습니다."}), 400) if request.headers.get(
+                'X-Requested-With') == 'XMLHttpRequest' \
+                else redirect(url_for('admin.members'))
+
+    except PermissionError as e:
+        # 권한 에러(Admin 수정 시도 등) 발생 시 403 반환
+        flash(str(e), 'danger')
+        return (jsonify({"error": str(e)}), 403) if request.headers.get('X-Requested-With') == 'XMLHttpRequest' \
+            else redirect(url_for('admin.members'))
+
+    except Exception as e:
+        # 기타 서버 에러 500 반환
+        return (jsonify({"error": "서버 오류가 발생했습니다."}), 500) if request.headers.get(
+            'X-Requested-With') == 'XMLHttpRequest' \
+            else redirect(url_for('admin.members'))
 
 
 @admin_bp.route('/member/delete/<int:member_id>', methods=['POST'])
