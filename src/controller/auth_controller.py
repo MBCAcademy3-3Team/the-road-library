@@ -9,7 +9,7 @@ from src.service.auth_service import AuthService
 auth_bp = Blueprint('auth', __name__)
 auth_service = AuthService()
 
-
+# 로그인
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -20,21 +20,38 @@ def login():
             uid      = request.form.get('uid'),
             password = request.form.get('upw'),
         )
-        # session 저장은 Controller 책임
         session.update(member.to_session())
         return redirect(url_for('index'))
 
-
+    # ✅ 1. 비활성화 계정 처리
     except PermissionError as e:
-
         return f"""
             <script>
-                alert('비활성화 처리된 계정입니다.');
+                alert('{e}');
                 location.href = '/auth/login';
             </script>
         """
 
+    # ✅ 2. 아이디 없음 또는 비밀번호 불일치 처리
+    except ValueError as e:
+        return f"""
+            <script>
+                alert('{e}');
+                location.href = '/auth/login';
+            </script>
+        """
 
+    # 3. 기타 예기치 못한 에러
+    except Exception as e:
+        print(f"로그인 중 서버 에러: {e}")
+        return f"""
+            <script>
+                alert('로그인 처리 중 오류가 발생했습니다.');
+                location.href = '/auth/login';
+            </script>
+        """
+
+# 로그아웃
 @auth_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
     auth_service.logout()
@@ -42,7 +59,7 @@ def logout():
     flash('로그아웃 되었습니다.')
     return redirect(url_for('auth.login'))
 
-
+# 회원 가입
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
