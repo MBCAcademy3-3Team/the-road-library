@@ -158,13 +158,19 @@ class AdminService:
         """
         target_role = self.admin_repo.find_member_role(member_id)
 
+        # [규칙 1] 수정 대상이 'admin'이면 무조건 튕겨냄 (비밀번호 변경 포함 모든 수정 불가)
         if target_role == 'admin':
-            raise PermissionError("최고 관리자 계정은 수정할 수 없습니다.")
-        if role == 'admin':
-            raise PermissionError("admin 등급으로는 임명할 수 없습니다.")
-        if current_role == 'manager':
-            role = target_role  # manager는 role 변경 불가
+            raise PermissionError("최고 관리자(Admin) 계정은 시스템 보호를 위해 웹에서 수정할 수 없습니다.")
 
+        # [규칙 2] 일반 회원을 'admin' 등급으로 격상시키는 것 방지
+        if role == 'admin':
+            raise PermissionError("최상위 권한(Admin)으로는 임명할 수 없습니다.")
+
+        # [규칙 3] 현재 로그인한 사람이 'manager'라면 타인의 권한(Role)을 건드리지 못하게 고정
+        if current_role == 'manager':
+            role = target_role  # 입력받은 role을 무시하고 원래의 role을 유지
+
+        # 모든 검사를 통과하면 레포지토리 호출
         return self.admin_repo.update_member(
             member_id, name, nickname, password, role, active, birthdate
         )
@@ -231,8 +237,18 @@ class AdminService:
         board = self.admin_repo.find_board_by_id(board_id)
         if not board:
             raise ValueError("존재하지 않는 게시글입니다.")
+
         if board.get('created_at'):
             board['created_at'] = board['created_at'].strftime('%Y.%m.%d %H:%M')
+
+        # [추가] 신고 내역의 날짜 포맷팅 및 null 처리
+        if board.get('reports'):
+            for r in board['reports']:
+                if r.get('created_at'):
+                    r['created_at'] = r['created_at'].strftime('%Y.%m.%d %H:%M')
+                # detail이 None일 경우 빈 문자열 처리
+                if r.get('detail') is None:
+                    r['detail'] = ""
         return board
 
     def hide_board(self, board_id: int):
