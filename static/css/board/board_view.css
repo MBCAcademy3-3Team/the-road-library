@@ -103,3 +103,18 @@
 opacity: 0.7;
 transition: 0.2s;
 }
+
+#comment-pagination .page-link {
+    color: #20828a;
+}
+
+#comment-pagination .page-item.active .page-link {
+    background-color: #20828a;
+    border-color: #20828a;
+    color: #ffffff;
+}
+
+#comment-pagination .page-link:hover {
+    color: #ffffff;
+    background-color: #20828a;
+}

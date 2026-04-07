@@ -341,12 +341,18 @@ class BoardService:
     def _sanitize_content(self, content: str) -> str:
         allowed_tags = [
             'p', 'br', 'b', 'i', 'u', 'em', 'strong', 'span',
-            'img', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3'
+            'img', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'table', 'thead', 'tbody', 'tr', 'th', 'td',
+            'blockquote', 'pre', 'code', 'hr', 'div',
+            'iframe',  # 유튜브 영상 허용
         ]
         allowed_attrs = {
-            'a':   ['href', 'target'],
-            'img': ['src', 'alt', 'style'],
-            '*':   ['style'],
+            'a': ['href', 'target', 'rel'],
+            'img': ['src', 'alt', 'style', 'width', 'height'],
+            'iframe': ['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'class'],
+            'td': ['colspan', 'rowspan', 'style'],
+            'th': ['colspan', 'rowspan', 'style'],
+            '*': ['style', 'class'],
         }
         return bleach.clean(content, tags=allowed_tags, attributes=allowed_attrs)
 

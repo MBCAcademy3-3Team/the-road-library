@@ -27,6 +27,7 @@ engine = create_engine(
     pool_size=10,        # 기본으로 유지할 연결 개수
     max_overflow=20,     # 사람이 몰리면 임시로 더 만들 연결 개수
     pool_recycle=500,    # 500초마다 연결을 새로고침 (TiDB 끊김 방지)
+    pool_pre_ping=True,
     connect_args={
         "ssl": {
             "check_hostname": False,
@@ -56,9 +57,17 @@ def execute_query(sql: str, args: tuple = ()):
             cursor.execute(sql, args)
             conn.commit()
             return cursor.lastrowid if cursor.lastrowid else cursor.rowcount
+    except pymysql.err.InterfaceError:
+        # 연결 끊김 시 g에서 제거 후 재연결
+        g.pop('db', None)
+        conn = get_db()
+        with conn.cursor() as cursor:
+            cursor.execute(sql, args)
+            conn.commit()
+            return cursor.lastrowid if cursor.lastrowid else cursor.rowcount
     except Exception as e:
         conn.rollback()
-        raise  # ✅ 호출부에서 핸들링 가능하도록 re-raise
+        raise
 
 
 def fetch_query(sql: str, args: tuple = (), one: bool = False):
@@ -67,13 +76,21 @@ def fetch_query(sql: str, args: tuple = (), one: bool = False):
         with conn.cursor() as cursor:
             cursor.execute(sql, args)
             return cursor.fetchone() if one else cursor.fetchall()
+    except pymysql.err.InterfaceError:
+        g.pop('db', None)
+        conn = get_db()
+        with conn.cursor() as cursor:
+            cursor.execute(sql, args)
+            return cursor.fetchone() if one else cursor.fetchall()
     except Exception as e:
         raise
+
 
 def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
+
 
 def init_app(app):
     app.teardown_appcontext(close_db)

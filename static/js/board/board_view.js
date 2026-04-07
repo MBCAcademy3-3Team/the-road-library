@@ -45,9 +45,22 @@ function updateReactionUI(type, isActive, count) {
 }
 
 // 3. 댓글 및 답글 (여기가 형이 썼던 로직 핵심!)
-function toggleReplyForm(commentId) {
+const MAX_REPLY_COUNT = 5;
+
+function toggleReplyForm(commentId, nickname, replyCount = 0) {
+    if (replyCount >= MAX_REPLY_COUNT) {
+        alert(`답글은 최대 ${MAX_REPLY_COUNT}개까지만 달 수 있습니다.`);
+        return;
+    }
+
     const form = document.getElementById(`reply-form-${commentId}`);
+    const input = document.getElementById(`reply-input-${commentId}`);
     form.classList.toggle('d-none');
+
+    if (!form.classList.contains('d-none')) {
+        input.value = `@${nickname} `;
+        input.focus();
+    }
 }
 
 function submitComment(parentId) {
@@ -73,6 +86,77 @@ function submitComment(parentId) {
         if (data && data.success) { location.reload(); }
         else if (data) { alert(data.message); }
     });
+}
+
+// 댓글 페이지네이션
+const COMMENTS_PER_PAGE = 5;
+
+document.addEventListener('DOMContentLoaded', function () {
+    initCommentPagination();
+});
+
+function initCommentPagination() {
+    const commentList = document.getElementById('comment-list');
+    const allComments = Array.from(commentList.children);
+    const totalPages = Math.ceil(allComments.length / COMMENTS_PER_PAGE);
+
+    if (totalPages <= 1) return;
+
+    showCommentPage(1, allComments);
+    renderCommentPagination(1, totalPages, allComments);
+}
+
+function showCommentPage(page, allComments) {
+    const start = (page - 1) * COMMENTS_PER_PAGE;
+    const end = start + COMMENTS_PER_PAGE;
+
+    allComments.forEach((el, idx) => {
+        el.style.display = (idx >= start && idx < end) ? '' : 'none';
+    });
+}
+
+function renderCommentPagination(currentPage, totalPages, allComments) {
+    const pagination = document.getElementById('comment-pagination');
+    pagination.innerHTML = '';
+
+    // 이전 버튼
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link border-0 shadow-sm mx-1" href="#">&laquo;</a>`;
+    prevLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            showCommentPage(currentPage - 1, allComments);
+            renderCommentPagination(currentPage - 1, totalPages, allComments);
+        }
+    });
+    pagination.appendChild(prevLi);
+
+    // 페이지 번호
+    for (let p = 1; p <= totalPages; p++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${p === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link border-0 shadow-sm mx-1" href="#">${p}</a>`;
+        li.addEventListener('click', (e) => {
+            e.preventDefault();
+            showCommentPage(p, allComments);
+            renderCommentPagination(p, totalPages, allComments);
+        });
+        pagination.appendChild(li);
+    }
+
+    // 다음 버튼
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link border-0 shadow-sm mx-1" href="#">&raquo;</a>`;
+    nextLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+            showCommentPage(currentPage + 1, allComments);
+            renderCommentPagination(currentPage + 1, totalPages, allComments);
+        }
+    });
+    pagination.appendChild(nextLi);
 }
 
 // 4. [✅ 복구] 스크랩 기능 (형의 커스텀 CSS .btn-scrap-custom 대응)

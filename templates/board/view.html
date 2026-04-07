@@ -15,7 +15,11 @@
     <div class="view-container">
         <div class="view-header">
             <div class="d-flex align-items-center mb-3">
-                <span class="badge rounded-pill px-3 py-2" style="background-color: var(--primary-light-teal); color: var(--primary-teal);">자유게시판</span>
+                <span class="badge rounded-pill px-3 py-2" style="background-color: var(--primary-light-teal); color: var(--primary-teal);">
+                    {% if board.category == 'info' %}정보게시판
+                    {% elif board.category == 'qna' %}Q&A게시판
+                    {% else %}자유게시판{% endif %}
+                </span>
                 {% if board.is_pinned %}
                 <span class="badge rounded-pill px-3 py-2 ms-2" style="background-color: #fff0f0; color: var(--notice-orange);">
                     <i class="bi bi-pin-angle-fill me-1"></i>공지
@@ -152,7 +156,8 @@
 
                                 <div class="d-flex gap-2">
                                     <button class="btn btn-sm btn-link text-decoration-none p-0 text-muted small"
-                                            onclick="toggleReplyForm({{ c.id }}, '{{ c.writer_nickname if c.writer_nickname else c.writer_name }}')">답글</button>
+                                            onclick="toggleReplyForm({{ c.id }}, '{{ c.writer_nickname if c.writer_nickname else c.writer_name }}',
+                                            {{ c.children|length if c.children else 0 }})">답글</button>
 
                                     {% if session.get('user_id') != c.member_id and c.active != 0 %}
                                     <span class="text-muted small">|</span>
@@ -208,6 +213,11 @@
             <div id="comment-list">
                 {{ render_comment(comments) }}
             </div>
+
+            <!-- 댓글 페이지네이션 -->
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center" id="comment-pagination"></ul>
+            </nav>
         </div>
     </div>
 </div>
