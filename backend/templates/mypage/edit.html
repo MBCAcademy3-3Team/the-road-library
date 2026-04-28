@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}회원 정보 수정 - {% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mypage/mypage_edit.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="info-body">
+    <div class="container">
+
+        <div class="info-header-box">
+            <h2>회원 정보 수정</h2>
+        </div>
+
+        <div class="info-card-container">
+            <div class="info-card-content">
+                <form action="/mypage/edit" method="POST">
+                    <div class="form-section">
+
+                        <div class="mb-4">
+                            <label class="form-label">아이디 (변경 불가)</label>
+                            <input type="text" class="form-control" value="{{ user.uid }}" readonly>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">이름</label>
+                            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">닉네임</label>
+                            <input type="text" name="nickname" class="form-control" value="{{ user.nickname }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">생년월일</label>
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <input type="number" id="birth_year" name="birth_year" class="form-control"
+                                           placeholder="YYYY년" required
+                                           max="{{ year_now }}">
+                                </div>
+                                <div class="col-4">
+                                    <input type="number" id="birth_month" name="birth_month" class="form-control"
+                                           placeholder="MM월" required min="1" max="12">
+                                </div>
+                                <div class="col-4">
+                                    <input type="number" id="birth_day" name="birth_day" class="form-control"
+                                           placeholder="DD일" required min="1" max="31">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="mb-2">
+                            <label class="form-label">새 비밀번호</label>
+                            <input type="password" name="password" class="form-control" placeholder="변경 시에만 입력하세요">
+                        </div>
+                        <p class="password-hint text-danger">
+                            <i class="bi bi-exclamation-circle"></i> 비밀번호 미입력 시 기존 비밀번호가 유지됩니다.
+                        </p>
+
+                        <div class="btn-group-custom">
+                            <button type="submit" class="btn btn-submit">수정 완료</button>
+                            <a href="/mypage" class="btn btn-cancel">취소</a>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

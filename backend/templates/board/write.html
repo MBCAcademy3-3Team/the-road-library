@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/board/board_write.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="container pt-4 mb-5" style="max-width: 900px;">
+    {% if not session.get('user_id') %}
+    <script>
+        alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/login";
+    </script>
+    {% else %}
+
+    <form action="/board/write" method="POST" id="writeForm" enctype="multipart/form-data">
+        <div class="p-4 pt-5 pb-4 rounded-4 shadow-sm" style="background-color: #b8e5e04A; border-left: 5px solid var(--primary-teal);">
+
+            <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-pencil-fill fs-3 me-3" style="color: var(--primary-teal);"></i>
+                <div>
+                    <h4 class="fw-bold mb-1">새로운 이야기 기록하기</h4>
+                    <p class="text-muted small mb-0">글자색, 배경색, 크기 등을 자유롭게 조절하여 나만의 글을 작성해보세요.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold medium text-muted mb-2 ms-1">게시판 선택</label>
+                <select name="category" id="categorySelect" class="form-select custom-select bg-white" required>
+                    <option value="free" {% if current_category == 'free' %}selected{% endif %}>자유게시판</option>
+                    <option value="info" {% if current_category == 'info' %}selected{% endif %}>정보게시판</option>
+                    <option value="qna" {% if current_category == 'qna' %}selected{% endif %}>Q&A 게시판</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label fw-bold medium text-muted mb-0 ms-1">제목</label>
+
+                    {% if session.get('user_role') == 'admin' %}
+                    <div class="form-check form-switch mb-0 d-flex align-items-center">
+                        <input class="form-check-input custom-switch mt-0" type="checkbox"
+                               name="is_pinned" id="isNotice" value="on" style="cursor: pointer;">
+                        <label class="form-check-label small fw-bold ms-2 mb-0" for="isNotice"
+                               style="cursor: pointer; user-select: none; color: #fd8a69; line-height: 1;">
+                            <i class="bi bi-pin-angle-fill"></i> 공지사항 등록
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+                <input type="text" id="postTitle" name="title"
+                       class="form-control bg-white custom-form-control py-3"
+                       placeholder="제목을 입력하세요" required maxlength="100">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold medium text-muted mb-2 ms-1">내용</label>
+                <textarea id="summernote" name="content"></textarea>
+            </div>
+
+            <div class="d-flex align-items-center mb-4 p-3 rounded-3" style="background-color: #fff; border: 1px dashed #dee2e6;">
+                <label class="form-label fw-bold text-muted mb-0 me-3" style="white-space: nowrap; min-width: 70px;">
+                    <i class="bi bi-paperclip"></i> 파일 첨부
+                </label>
+                <input type="file" name="file" id="postFile" class="form-control form-control-sm border-0 shadow-none"
+                       style="background-color: #f8f9fa; border-radius: 8px;">
+            </div>
+
+            <hr class="mt-4 mb-3" style="border-top: 1px solid #dee2e6; opacity: 0.5;">
+
+            <div class="d-flex justify-content-end align-items-center gap-2 py-4">
+                <a href="/board/list?category={{ current_category }}" class="btn btn-light px-4 py-2 rounded-pill fw-bold shadow-sm"
+                   style="color: #212529; border: 1px solid #dee2e6; background-color: #fff;">
+                   취소
+                </a>
+                <button type="submit" id="submitBtn" class="btn btn-primary px-5 py-2 rounded-pill fw-bold border-0"
+                        style="background-color: var(--primary-teal)" disabled>
+                    <i class="bi bi-check-lg me-1"></i> 등록하기
+                </button>
+            </div>
+
+        </div>
+    </form>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/lang/summernote-ko-KR.min.js"></script>
+<script src="/static/js/board/board_write.js"></script>
+{% endblock %}

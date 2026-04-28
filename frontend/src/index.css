@@ -1,0 +1,16 @@
+/* frontend/src/index.css */
+:root {
+  --primary-teal: #20c997; /* 기존에 쓰시던 색상 코드 */
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 헤더가 가로로 잘 정렬되도록 도와주는 설정 */
+.navbar-nav .nav-link {
+  color: #333;
+}

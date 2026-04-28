@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}홈페이지 소개 - {% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intro/features.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container bg-section">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold mb-3">홈페이지 소개</h1>
+        <p class="lead text-muted">도로 위의 지혜를 읽는 가장 스마트한 방법</p>
+        <hr class="mx-auto" style="width: 60px; height: 4px; background-color: #20828a; opacity: 1;">
+    </div>
+
+    <div class="accent-card shadow-sm">
+        <h2 class="h3 fw-bold mb-4">
+            "도로 위의 숨은 위험, <span class="highlight-box">도(道)서관</span>이 먼저 읽습니다."
+        </h2>
+        <p class="fs-5 lh-lg mb-0">
+            도(道)서관은 AI 기술을 활용해 도로 위 숨겨진 위험 요소를 실시간으로 분석하고, 운전자들이 서로의 경험과 지식을 공유하는 <strong>안전 주행 통합 플랫폼</strong>입니다. <br>
+            우리는 단순히 길을 안내하는 것을 넘어, 당신의 모든 여정이 기록되고 보호받는 '도로 위의 도서관'이 되고자 합니다.
+        </p>
+    </div>
+
+    <div class="text-center mb-5 pt-5">
+        <h2 class="display-6 fw-bold">핵심 기능 안내</h2>
+        <p class="text-muted">도(道)서관이 제공하는 세심한 안전 솔루션</p>
+    </div>
+
+    <div class="row align-items-center feature-section">
+        <div class="col-lg-6 pe-lg-5">
+            <div class="feature-icon-circle">
+                <i class="bi bi-robot"></i> </div>
+            <h3 class="fw-bold mb-3">
+                <span class="title-bg-teal">도(道)와주세요</span>
+                <span class="text-muted fs-5">(Solution Archive)</span>
+            </h3>
+            <p class="lh-lg">
+                YOLOv11 딥러닝 모델을 기반으로 도로 위의 <br> 야생동물(고라니, 멧돼지 등)과 낙하물을 실시간으로 감지합니다.
+            </p>
+            <p class="lh-lg">
+                분석된 데이터는 단순한 경고를 넘어 사고 다발 구역 예보 시스템으로 시각화되어, <br> 당신의 주행을 더 안전하게 가이드합니다.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <div class="img-placeholder shadow-sm overflow-hidden" style="min-height: 350px; border-radius: 15px; background-color: #fff; padding: 0;">
+                <img src="/static/img/sss.png" alt="AI 위험 감지 데모 화면" class="d-block w-100 h-100" style="object-fit: cover; object-position: center;">
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center flex-lg-row-reverse feature-section">
+        <div class="col-lg-6 ps-lg-5 text-lg-end">
+            <div class="d-flex justify-content-lg-end">
+                <div class="feature-icon-circle">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+            </div>
+            <h3 class="fw-bold mb-3">
+                <span class="title-bg-teal">도(道)란도란</span>
+                <span class="text-muted fs-5">(Communication Hub)</span>
+            </h3>
+            <p class="lh-lg fw-bold">"운전자의 생생한 목소리가 모이는 곳"</p>
+            <p class="lh-lg">
+                '도란도란'은 길(道) 위에서 일어나는 소소한 이야기부터 실시간 교통 상황까지, <br>운전자들이 자유롭게 소통하는 커뮤니티 공간입니다.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <div class="shadow-sm overflow-hidden" style="border-radius: 15px;">
+                <img src="/static/img/communication_hub.png" alt="커뮤니티 화면" class="img-fluid w-100 d-block">
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center feature-section">
+        <div class="col-lg-6 pe-lg-5">
+            <div class="feature-icon-circle">
+                <i class="bi bi-book"></i>
+            </div>
+            <h3 class="fw-bold mb-3">
+                <span class="title-bg-teal">도(道)움말</span>
+                <span class="text-muted fs-5">(Safety Driving Tips)</span>
+            </h3>
+            <p class="lh-lg fw-bold">"베테랑 운전자도 놓치기 쉬운 상황별 안전 수칙"</p>
+            <p class="lh-lg">
+                도(道)움말은 도로 위에서 마주할 수 있는 다양한 위험 상황에 대비해, <br>꼭 알아두어야 할 핵심 안전 수칙을 안내합니다.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <div class="shadow-sm overflow-hidden" style="border-radius: 15px;">
+                <img src="/static/img/safety_guide_archive.png" alt="안전 수칙 가이드 화면" class="img-fluid w-100 d-block">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/intro/features.js') }}"></script>
+{% endblock %}
